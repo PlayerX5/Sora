@@ -167,7 +167,7 @@ h7 {
 
 .header .logo img {
   max-height: 36px;
-  margin-left: -80px;
+  margin-left: 0;
   margin-right: 10px;
 }
 
@@ -248,7 +248,6 @@ h7 {
     display: flex;
     list-style: none;
     align-items: center;
-    padding-left: 500px; /* Adjust as needed */
   }
 
   .navmenu li {
@@ -307,7 +306,6 @@ h7 {
     list-style: none;
     position: absolute;
     inset: 60px 20px 20px 20px;
-    padding: 10px 0;
     margin: 0;
     border-radius: 6px;
     background-color: var(--nav-mobile-background-color);
@@ -523,7 +521,6 @@ h7 {
 
 .footer .footer-newsletter {
   margin-left: auto;
-  margin-right: -70px; /* Push it towards the right */
 }
 
 .footer .footer-newsletter .newsletter-form {
@@ -835,8 +832,8 @@ section,
   margin: 10px 0 0 0;
   padding: 0;
   line-height: 1;
-  font-size: 50px;
-  line-height: 20px;
+  font-size: clamp(24px, 4vw, 50px);
+  line-height: 1.4;
 }
 
 .hero .icon-box h3 a {
@@ -853,8 +850,9 @@ section,
 }
 
 .hero .weather-box {
-  width: 50%; /* Adjust as needed */
-  height: 400px; 
+  width: min(50%, 500px);
+  min-height: 200px;
+  height: auto;
   background-color: rgba(255, 255, 255, 0.193);
   padding: 30px;
   border-radius: 20px;
@@ -920,7 +918,7 @@ section,
 
 #location, #temperature, #condition {
   font-family: 'Tangerine', cursive; /* Use custom font */
-  font-size: 50px; /* Adjust font size */
+  font-size: clamp(24px, 4vw, 50px); /* Adjust font size */
   font-weight: bold; /* Make the font bold */
   line-height: 1.5; /* Adjust line height for spacing */
   letter-spacing: 1px; /* Adjust letter spacing */
@@ -989,7 +987,7 @@ section,
 # About Section
 --------------------------------------------------------------*/
 .about .content h3 {
-  font-size: 75px;
+  font-size: clamp(36px, 6vw, 75px);
   font-weight: 700;
   color: #354410;
 }
@@ -1061,7 +1059,7 @@ section,
 # Call To Action Section
 --------------------------------------------------------------*/
 .call-to-action {
-  padding: 400px 0;
+  padding: clamp(80px, 20vw, 400px) 0;
   position: relative;
   clip-path: inset(0);
 }
@@ -1111,8 +1109,8 @@ section,
 #difficulty-selector {
   width: 100%; /* Full width */
   padding: 10px; /* Add padding */
-  font-size: 30px; /* Adjust font size */
-  padding-left: 100px;
+  font-size: clamp(16px, 2.5vw, 30px);
+  padding-left: 1rem;
   border-radius: 5px; /* Rounded corners */
   background-color: #edf4ed; /* Background color */
   color: var(--default-color); /* Text color */
@@ -1224,7 +1222,7 @@ h3 {
 --------------------------------------------------------------*/
 
 .team .container h3 {
-  font-size: 75px;
+  font-size: clamp(36px, 6vw, 75px);
   font-weight: 700;
   color: #354410;
 }
@@ -1308,7 +1306,7 @@ h3 {
 }
 
 .contact .container h3 {
-  font-size: 75px;
+  font-size: clamp(36px, 6vw, 75px);
   font-weight: 700;
   color: #354410;
 }

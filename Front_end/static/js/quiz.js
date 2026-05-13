@@ -46,8 +46,8 @@ async function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
             displayQuestions(); // Modified to show all questions at once
-            document.getElementById("quiz-content").style.display = "block";
-            document.getElementById("scorecard").style.display = "none";
+            // document.getElementById("quiz-content").style.display = "block";
+            // document.getElementById("scorecard").style.display = "none";
         } else {
             alert("No questions available for the selected difficulty.");
         }
@@ -120,7 +120,7 @@ function checkAnswer(selectedOption, questionIndex) {
 
 // Function to display the scorecard
 function showScorecard() {
-    document.getElementById("quiz-content").style.display = "none";
+    // document.getElementById("quiz-content").style.display = "none";
     document.getElementById("score").innerText = `${score} / ${questions.length}`;
     const percentage = (score / questions.length) * 100;
     document.getElementById("results").innerText = `${percentage.toFixed(2)}%`;
@@ -130,7 +130,7 @@ function showScorecard() {
 // Function to restart the quiz
 function restartQuiz() {
     // Reset quiz content and state
-    document.getElementById('quiz-content').style.display = 'none';
+    // document.getElementById('quiz-content').style.display = 'none';
     document.getElementById('scorecard').style.display = 'none';
     document.getElementById('start-btn').style.display = 'block';
 
