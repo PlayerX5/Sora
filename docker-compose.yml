@@ -1,0 +1,47 @@
+services:
+  # Flask API service
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    container_name: trivia_api
+    image: sairam76/trivia_api
+    ports:
+      - "5050:5000"
+    depends_on:
+      - db
+    networks:
+      - trivia_network
+
+  # PostgreSQL service (official postgres image)
+  db:
+    image: postgres:latest  
+    container_name: trivia_db
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./trivia_backup.sql:/docker-entrypoint-initdb.d/trivia_backup.sql  # Include your SQL file
+    ports:
+      - "5432:5432"
+    networks:
+      - trivia_network
+
+  # Front-end service (Nginx or static files serving)
+  frontend:
+    build: 
+      context: ./Front_end
+      dockerfile: Dockerfile
+    container_name: trivia_frontend
+    image: sairam76/trivia_frontend
+    networks:
+      - trivia_network
+
+networks:
+  trivia_network:
+    driver: bridge  # Use bridge networking for container communication
