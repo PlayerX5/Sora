@@ -7,6 +7,7 @@ let questions = [];
 let score = 0;
 let quizStarted = false;
 let selectedDifficulty = "";
+let answeredQuestions = new Set();
 
 // Function to handle difficulty selection
 function setSelectedDifficulty(difficulty) {
@@ -110,8 +111,9 @@ function checkAnswer(selectedOption, questionIndex) {
         `Question: ${questions[questionIndex].question}, Selected: ${selectedOption}, Correct: ${correctAnswer}, Score: ${score}`
     );
 
+    answeredQuestions.add(questionIndex);
     // Move to the next question or show the scorecard
-    if (questionIndex === questions.length - 1) {
+    if (answeredQuestions.size === questions.length) {
         showScorecard();
     }
 }
@@ -137,6 +139,7 @@ function restartQuiz() {
     score = 0;
     quizStarted = false;
     questions = [];
+    answeredQuestions = new Set();
 
     // Clear questions display
     document.getElementById('questions-container').innerHTML = "";
