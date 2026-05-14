@@ -8,9 +8,9 @@ from psycopg2 import sql
 from flask_cors import CORS
 from flask import Flask, send_from_directory
 import os
-# from flask_sqlalchemy import SQLAlchemy
+from urllib.parse import urlparse
 
-# from urllib.parse import urlparse
+# from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__, static_folder='Front_end', static_url_path='')
 app.secret_key = 'your_secret_key'  # Secret key for sessions
@@ -23,13 +23,26 @@ Session(app)  # Initialize Flask-Session
 
 # Database connection function
 def get_db_connection():
-    conn = psycopg2.connect(
-        database=os.environ.get("POSTGRES_DB"),
-        user=os.environ.get("POSTGRES_USER"),
-        password=os.environ.get("POSTGRES_PASSWORD"),
-        host="db",
-        port="5432"
-    )
+    database_url = os.environ.get("postgresql://postgresql:DpbpH0MPfv554gzCR3J2s6aJy5oQ61yc@dpg-d82khvf7f7vs7388aje0-a/trivia_db_lxfl")
+    
+    if database_url:
+        result = urlparse(database_url)
+        conn = psycopg2.connect(
+            database=result.path[1:],
+            user=result.username,
+            password=result.password,
+            host=result.hostname,
+            port=result.port
+        )
+    else:
+        # fallback for local Docker
+        conn = psycopg2.connect(
+            database=os.environ.get("POSTGRES_DB"),
+            user=os.environ.get("POSTGRES_USER"),
+            password=os.environ.get("POSTGRES_PASSWORD"),
+            host="db",
+            port="5432"
+        )
     return conn
 
 # Function to fetch questions from the database
