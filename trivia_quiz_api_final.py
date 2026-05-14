@@ -20,7 +20,7 @@ app.config['SESSION_TYPE'] = 'filesystem'  # Store sessions on the server's file
 CORS(app, supports_credentials=True)  # Enable CORS with credentials support
 app.config['SESSION_PERMANENT'] = False  # Sessions are not permanent
 Session(app)  # Initialize Flask-Session
-
+ 
 # Database connection function
 def get_db_connection():
     database_url = os.environ.get("postgresql://postgresql:DpbpH0MPfv554gzCR3J2s6aJy5oQ61yc@dpg-d82khvf7f7vs7388aje0-a/trivia_db_lxfl")
