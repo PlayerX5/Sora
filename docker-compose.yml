@@ -15,7 +15,7 @@ services:
       - db
     networks:
       - trivia_network
-
+ 
   # PostgreSQL service (official postgres image)
   db:
     image: postgres:latest  
