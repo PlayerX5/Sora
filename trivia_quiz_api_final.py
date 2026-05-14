@@ -23,7 +23,7 @@ Session(app)  # Initialize Flask-Session
  
 # Database connection function
 def get_db_connection():
-    database_url = os.environ.get("postgresql://postgresql:DpbpH0MPfv554gzCR3J2s6aJy5oQ61yc@dpg-d82khvf7f7vs7388aje0-a/trivia_db_lxfl")
+    database_url = os.environ.get("DATABASE_URL")
     app.logger.info(f"DATABASE_URL found: {bool(database_url)}")
     app.logger.info(f"Connecting to: {database_url[:30] if database_url else 'None'}")
 
