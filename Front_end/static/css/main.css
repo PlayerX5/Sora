@@ -256,7 +256,7 @@ h7 {
 
   .navmenu a,
   .navmenu a:focus {
-    color: var(--nav-color);
+    color: var(--heading-color);
     padding: 18px 15px;
     font-size: 25px;
     font-family: 'Dancing Script', cursive;
