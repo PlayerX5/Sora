@@ -4,7 +4,7 @@
 //   });
   
 //   function fetchQuestion(difficulty) {
-//     fetch(`https://api.example.com/trivia?difficulty=${difficulty}`)
+//     fetch(`https://api.example.com/sora?difficulty=${difficulty}`)
 //       .then((response) => response.json())
 //       .then((data) => {
 //         const questionData = data.results[0]; // Assuming the API returns an array of questions

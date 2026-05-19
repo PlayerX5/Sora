@@ -1,4 +1,4 @@
-// Base URL for the trivia API
+// Base URL for the sora API
 const API_BASE_URL = "/api";
 
 let currentQuestionIndex = 0;

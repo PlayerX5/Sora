@@ -37,10 +37,10 @@ CREATE TABLE public.questions (
 ALTER TABLE public.questions OWNER TO postgres;
 
 --
--- Name: trivia_questions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: sora_questions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.trivia_questions_id_seq
+CREATE SEQUENCE public.sora_questions_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -49,20 +49,20 @@ CREATE SEQUENCE public.trivia_questions_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.trivia_questions_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.sora_questions_id_seq OWNER TO postgres;
 
 --
--- Name: trivia_questions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: sora_questions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.trivia_questions_id_seq OWNED BY public.questions.id;
+ALTER SEQUENCE public.sora_questions_id_seq OWNED BY public.questions.id;
 
 
 --
 -- Name: questions id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.questions ALTER COLUMN id SET DEFAULT nextval('public.trivia_questions_id_seq'::regclass);
+ALTER TABLE ONLY public.questions ALTER COLUMN id SET DEFAULT nextval('public.sora_questions_id_seq'::regclass);
 
 
 --
@@ -104,18 +104,18 @@ COPY public.questions (id, question, options, answer, difficulty) FROM stdin;
 
 
 --
--- Name: trivia_questions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: sora_questions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.trivia_questions_id_seq', 30, true);
+SELECT pg_catalog.setval('public.sora_questions_id_seq', 30, true);
 
 
 --
--- Name: questions trivia_questions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: questions sora_questions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.questions
-    ADD CONSTRAINT trivia_questions_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT sora_questions_pkey PRIMARY KEY (id);
 
 
 --

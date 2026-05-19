@@ -59,7 +59,7 @@ def get_questions(difficulty):
     cur.execute("SELECT * FROM questions WHERE difficulty = %s", (difficulty_str,))
     questions = cur.fetchall()  # Fetch all rows as a list of tuples
 
-    # Convert fetched data into a dictionary format similar to the original trivia_questions
+    # Convert fetched data into a dictionary format similar to the original sora_questions
     formatted_questions = []
     for row in questions:
         # print(row[2], type(row[2]))
@@ -79,9 +79,9 @@ def get_questions(difficulty):
 def debug_session():
     print("Session data before request:", dict(session))  # Log session data before handling the request
 
-# Endpoint to retrieve a random trivia question
-@app.route('/api/trivia', methods=['GET'])
-def get_trivia():
+# Endpoint to retrieve a random sora question
+@app.route('/api/sora', methods=['GET'])
+def get_sora():
     difficulty = request.args.get('difficulty', default='easy', type=str).lower()  # Default to 'easy'
 
     # Validate the difficulty input
@@ -115,7 +115,7 @@ def get_trivia():
         mimetype='application/json'
     )
 
-# Endpoint to retrieve multiple trivia questions based on difficulty
+# Endpoint to retrieve multiple sora questions based on difficulty
 @app.route('/api/questions', methods=['GET'])
 def get_multiple_questions():
     num_questions = request.args.get('num', default=1, type=int)  # Default to 1 question
@@ -188,21 +188,21 @@ def check_answers():
             continue
 
         # Find the question by ID
-        trivia = next((q for q in questions if q['id'] == question_id), None)
-        if not trivia:
+        sora = next((q for q in questions if q['id'] == question_id), None)
+        if not sora:
             results.append({"id": question_id, "error": "Invalid question ID"})
             continue
 
         # Ensure options are in list form
-        trivia['options'] = trivia['options'].split(',') if isinstance(trivia['options'], str) else trivia['options']
+        sora['options'] = sora['options'].split(',') if isinstance(sora['options'], str) else sora['options']
 
         # Validate the selected option
-        if selected_option not in trivia['options']:
+        if selected_option not in sora['options']:
             results.append({"id": question_id, "error": "Invalid option"})
             continue
 
         # Check if the selected answer is correct
-        if trivia['answer'].strip().lower() == selected_option.strip().lower():
+        if sora['answer'].strip().lower() == selected_option.strip().lower():
             correct_count += 1
             results.append({"id": question_id, "correct": True, "message": "Correct answer!"})
         else:

@@ -1,6 +1,6 @@
 🔹 AWS Deployment Details
 
-This Trivia Quiz application was deployed on an AWS EC2 instance running Ubuntu.
+This Sora Quiz application was deployed on an AWS EC2 instance running Ubuntu.
 
 I used the following AWS services during deployment:
 AWS EC2 – created a virtual server to host the website

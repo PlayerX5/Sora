@@ -15,7 +15,7 @@ COPY . /app/
 EXPOSE 5000
 
 # Set environment variables for Flask
-ENV FLASK_APP=trivia_quiz_api_final.py
+ENV FLASK_APP=sora_website.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
 # Run the Flask app
