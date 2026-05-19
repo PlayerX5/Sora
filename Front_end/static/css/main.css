@@ -1554,7 +1554,7 @@ label[for="numQuestions"] {
   background-color: #0056b3;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1199px) {
   .hero .weather-box {
     width: 90%;
     min-height: auto;
