@@ -256,7 +256,7 @@ h7 {
 
   .navmenu a,
   .navmenu a:focus {
-    color: var(--heading-color);
+    color: var(--accent-color);
     padding: 18px 15px;
     font-size: 25px;
     font-family: 'Dancing Script', cursive;
@@ -288,7 +288,7 @@ h7 {
 /* Navmenu - Mobile */
 @media (max-width: 1199px) {
   .mobile-nav-toggle {
-    color: var(--nav-color);
+    color: var(--accent-color);
     font-size: 28px;
     line-height: 0;
     margin-right: 10px;
@@ -317,7 +317,7 @@ h7 {
 
 .navmenu a,
 .navmenu a:focus {
-  color: var(--heading-color);
+  color: var(--accent-color);
   padding: 12px 20px;
   font-family: 'Dancing Script', cursive;
   font-size: 28px;
