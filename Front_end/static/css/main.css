@@ -315,19 +315,19 @@ h7 {
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
   }
 
-  .navmenu a,
-  .navmenu a:focus {
-    color: var(--nav-dropdown-color);
-    padding: 10px 20px;
-    font-family: var(--nav-font);
-    font-size: 17px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    white-space: nowrap;
-    transition: 0.3s;
-  }
+.navmenu a,
+.navmenu a:focus {
+  color: var(--heading-color);
+  padding: 12px 20px;
+  font-family: 'Dancing Script', cursive;
+  font-size: 28px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+  transition: 0.3s;
+}
 
   .navmenu a i,
   .navmenu a:focus i {
@@ -1552,4 +1552,26 @@ label[for="numQuestions"] {
 
 #restart-btn:hover {
   background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .hero .weather-box {
+    width: 90%;
+    min-height: auto;
+    height: auto;
+    padding: 20px;
+    margin: 20px auto;
+    left: 0;
+    right: 0;
+  }
+
+  .hero .weather-box h6 {
+    font-size: 35px;
+    padding: 15px;
+  }
+
+  #location, #temperature, #condition {
+    font-size: clamp(20px, 6vw, 35px);
+    line-height: 1.8;
+  }
 }
