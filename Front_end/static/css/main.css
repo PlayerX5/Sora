@@ -315,19 +315,19 @@ h7 {
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
   }
 
-.navmenu a,
-.navmenu a:focus {
-  color: var(--accent-color);
-  padding: 12px 20px;
-  font-family: 'Dancing Script', cursive;
-  font-size: 28px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  white-space: nowrap;
-  transition: 0.3s;
-}
+  .navmenu a,
+  .navmenu a:focus {
+    color: var(--accent-color);
+    padding: 12px 20px;
+    font-family: 'Dancing Script', cursive;
+    font-size: 28px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
+    transition: 0.3s;
+  }
 
   .navmenu a i,
   .navmenu a:focus i {
@@ -383,8 +383,32 @@ h7 {
   .mobile-nav-active .navmenu>ul {
     display: block;
   }
-}
 
+  .fun-submenu {
+    display: none;
+    position: static !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    background: rgba(15, 15, 25, 0.5);
+    border-radius: 8px;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+  }
+
+  .fun-submenu.dropdown-active {
+    display: block;
+    padding: 10px;
+  }
+
+  .fun-submenu li a {
+    padding: 10px 20px;
+    font-size: 24px;
+    color: #333333 !important;
+  }
+}
 /*--------------------------------------------------------------
 # Global Footer
 --------------------------------------------------------------*/
@@ -1067,41 +1091,36 @@ section,
 
 /* Mobile Fun Dropdown */
 @media (max-width: 1199px) {
-  .fun-dropdown > a {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .fun-dropdown > a i {
-    transition: transform 0.3s ease;
-  }
-
-  .fun-dropdown.active > a i {
-    transform: rotate(180deg);
-  }
-
   .fun-submenu {
+    display: none;
     position: static !important;
     transform: none !important;
-    visibility: hidden;
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
     background: rgba(15, 15, 25, 0.5);
     border-radius: 8px;
     padding: 0;
-    pointer-events: none;
+    list-style: none;
+    width: 100%;
   }
 
   .fun-submenu.dropdown-active {
-    visibility: visible;
-    opacity: 1;
-    max-height: 200px;
+    display: block;
     padding: 10px;
-    pointer-events: auto;
+  }
+
+  .fun-submenu li a {
+    padding: 10px 20px !important;
+    font-size: 24px !important;
+    color: var(--accent-color) !important; /* matches other nav items */
+    justify-content: flex-start !important; /* stops icon/text splitting */
+    gap: 10px !important;
+    background-color: transparent !important;
+  }
+
+  .fun-submenu li a:hover {
+    background-color: var(--nav-dropdown-hover-color) !important;
   }
 }
 
