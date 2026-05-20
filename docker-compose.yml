@@ -39,6 +39,8 @@ services:
       dockerfile: Dockerfile
     container_name: sora_frontend
     image: sairam76/sora_frontend
+    ports:
+    - "80:80"
     networks:
       - sora_network
 

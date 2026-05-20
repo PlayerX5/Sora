@@ -19,4 +19,4 @@ ENV FLASK_APP=sora_website.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
 # Run the Flask app
-CMD ["flask", "run"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "sora_website:app"]

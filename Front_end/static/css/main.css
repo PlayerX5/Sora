@@ -983,6 +983,128 @@ section,
   }
 }
 
+/* Fun Dropdown */
+.fun-dropdown {
+  position: relative;
+}
+
+.fun-dropdown > a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fun-dropdown > a i {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.fun-dropdown:hover > a i {
+  transform: rotate(180deg);
+}
+
+.fun-dropdown::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -10px;
+  right: -10px;
+  height: 30px;
+}
+
+.fun-submenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  list-style: none;
+  background: rgba(15, 15, 25, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px;
+  min-width: 160px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+}
+
+.fun-dropdown:hover .fun-submenu,
+.fun-submenu:hover {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.fun-submenu li a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-family: "Dancing Script", cursive;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+  white-space: nowrap;
+}
+
+.fun-submenu li a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff !important;
+  padding-left: 22px;
+}
+
+.fun-submenu li a i {
+  font-size: 15px;
+  opacity: 0.75;
+}
+
+/* Mobile Fun Dropdown */
+@media (max-width: 1199px) {
+  .fun-dropdown > a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .fun-dropdown > a i {
+    transition: transform 0.3s ease;
+  }
+
+  .fun-dropdown.active > a i {
+    transform: rotate(180deg);
+  }
+
+  .fun-submenu {
+    position: static !important;
+    transform: none !important;
+    visibility: hidden;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    background: rgba(15, 15, 25, 0.5);
+    border-radius: 8px;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  .fun-dropdown.active .fun-submenu {
+    visibility: visible;
+    opacity: 1;
+    max-height: 200px;
+    padding: 10px;
+    pointer-events: auto;
+  }
+}
+
 /*--------------------------------------------------------------
 # About Section
 --------------------------------------------------------------*/
@@ -1053,6 +1175,40 @@ section,
   font-size: 15px;
   color: color-mix(in srgb, var(--default-color), transparent 20%);
   margin: 0;
+}
+
+/*--------------------------------------------------------------
+# About Quiz Section
+--------------------------------------------------------------*/
+.about_quiz .content h3 {
+  font-size: clamp(36px, 6vw, 75px);
+  font-weight: 700;
+  color: #354410;
+}
+
+.about_quiz .content .fst-italic {
+  color: color-mix(in srgb, var(--default-color), var(--contrast-color) 50%);
+}
+
+.about_quiz .content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.about_quiz .content ul li {
+  padding: 10px 0 0 0;
+  display: flex;
+}
+
+.about_quiz .content ul i {
+  color: var(--accent-color);
+  margin-right: 0.5rem;
+  line-height: 1.2;
+  font-size: 1.25rem;
+}
+
+.about_quiz .content p:last-child {
+  margin-bottom: 0;
 }
 
 /*--------------------------------------------------------------
