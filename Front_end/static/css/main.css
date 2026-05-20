@@ -1096,7 +1096,7 @@ section,
     pointer-events: none;
   }
 
-  .fun-dropdown.active .fun-submenu {
+  .fun-submenu.dropdown-active {
     visibility: visible;
     opacity: 1;
     max-height: 200px;

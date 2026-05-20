@@ -18,8 +18,6 @@
    * Mobile nav toggle
    */
   const mobileNavToggleBtn = document.querySelector('.mobile-nav-toggle');
-  // Mobile Fun Dropdown toggle
-  const funDropdownToggle = document.querySelector('.fun-dropdown > a');
 
   function mobileNavToogle() {
     document.querySelector('body').classList.toggle('mobile-nav-active');
@@ -201,15 +199,5 @@
   }
   window.addEventListener('load', navmenuScrollspy);
   document.addEventListener('scroll', navmenuScrollspy);
-
-  /**
-   * Fun Dropdown toggle
-   */
-  funDropdownToggle.addEventListener('click', function (e) {
-    if (window.innerWidth <= 1199) {
-      e.preventDefault();
-      this.closest('.fun-dropdown').classList.toggle('active');
-    }
-  });
 
 })();
