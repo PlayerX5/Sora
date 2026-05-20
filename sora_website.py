@@ -15,6 +15,12 @@ from urllib.parse import urlparse
 app = Flask(__name__, static_folder='Front_end', static_url_path='')
 app.secret_key = 'your_secret_key'  # Secret key for sessions
 
+@app.route('/config')
+def config():
+    return jsonify({
+        'openWeatherAPIKey': os.environ.get('OPENWEATHER_API_KEY')
+    })
+
 # Configure server-side session storage
 app.config['SESSION_TYPE'] = 'filesystem'  # Store sessions on the server's filesystem
 CORS(app, supports_credentials=True)  # Enable CORS with credentials support

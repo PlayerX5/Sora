@@ -19,7 +19,7 @@
   --background-color: #98e4d9; /* Background color for the entire website, including individual sections */
   --default-color: #444444; /* Default color used for the majority of the text content across the entire website */
   --heading-color: #151515; /* Color for headings, subheadings and title throughout the website */
-  --accent-color: #7B904B; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
+  --accent-color: 	#3EA055; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
   --surface-color: #ffffff; /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
   --contrast-color: #312f2f; /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
 }
@@ -161,6 +161,10 @@ h7 {
   z-index: 997;
 }
 
+.header .sitename {
+  font-family: 'Tangerine', cursive;
+}
+
 .header .logo {
   line-height: 1;
 }
@@ -172,7 +176,7 @@ h7 {
 }
 
 .header .logo h1 {
-  font-size: 32px;
+  font-size: 70px;
   margin: 0;
   font-weight: 700;
   color: var(--heading-color);
@@ -782,7 +786,7 @@ section,
   width: 100%;
   min-height: 100vh;
   position: relative;
-  padding: 120px 0 80px 0;
+  padding: 50px 0 80px 0;
   display: flex;
   /* align-items: center; */
   /* justify-content: center; */
@@ -840,9 +844,9 @@ section,
   align-items: center;
   justify-content: center;
   margin-top: 80px; /* Adds space above the entire icon box */
-  position: relative; /* Or absolute if needed */
-  top: 50px; /* Adjust this value to move it upwards */
-  transform: translateY(-50px); /* Alternative: For smoother adjustments */
+  /* position: relative; Or absolute if needed */
+  /* top: 50px; Adjust this value to move it upwards */
+  /* transform: translateY(-50px); Alternative: For smoother adjustments */
 }
 
 .hero .icon-box i {
@@ -874,14 +878,15 @@ section,
 }
 
 .hero .weather-box {
-  width: min(50%, 500px);
-  min-height: 200px;
-  height: auto;
+  width: min(50%, 700px);
+  min-height: unset;
+  height: 350px;
   background-color: rgba(255, 255, 255, 0.193);
   padding: 30px;
   border-radius: 20px;
   position: relative;
-  margin-top: 20px; /* Spacing from quote box */
+  margin-top: 15px; /* Spacing from quote box */
+  margin: 10px auto;
   left: 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   font-family: 'Dancing Scipt', cursive;
@@ -978,7 +983,7 @@ section,
 }
 
 .hero .swiper-pagination {
-  margin-top: 20px;
+  margin-top: auto;
   position: relative;
 }
 

@@ -184,17 +184,13 @@
         </div>        
  
         <script>
-          const openWeatherAPIKey = "OPENWEATHER_API_KEY";  // Replace with your OpenWeatherMap API key
-          const UNITS = "metric";  // 'metric' for Celsius, 'imperial' for Fahrenheit
-      
-          // Bangalore's Latitude and Longitude
-          const lat = 13.028205;  // Latitude for Bangalore
-          const lon = 77.632841;  // Longitude for Bangalore
-      
-          // Function to fetch weather data from OpenWeatherMap
-          function fetchWeather() {
+          const UNITS = "metric";
+          const lat = 13.028205;
+          const lon = 77.632841;
+
+          function fetchWeather(openWeatherAPIKey) {
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${UNITS}&appid=${openWeatherAPIKey}`;
-      
+
             fetch(url)
               .then(response => {
                 if (!response.ok) {
@@ -204,7 +200,6 @@
               })
               .then(data => {
                 if (data && data.main) {
-                  // Display weather data
                   document.getElementById("location").textContent = `Location: Bangalore`;
                   document.getElementById("temperature").textContent = `Temperature: ${data.main.temp}°C`;
                   document.getElementById("condition").textContent = `Condition: ${data.weather[0].description}`;
@@ -218,13 +213,19 @@
                 document.getElementById("condition").textContent = "Error fetching data.";
               });
           }
-      
-          // Fetch weather data when the page loads
+
           document.addEventListener("DOMContentLoaded", () => {
-            fetchWeather();
+            fetch('/config')
+              .then(res => res.json())
+              .then(config => {
+                fetchWeather(config.openWeatherAPIKey);
+              })
+              .catch(err => {
+                console.error("Error loading config:", err);
+                document.getElementById("condition").textContent = "Error loading config.";
+              });
           });
         </script>
-
       </div>
 
     </section><!-- /Hero Section -->
@@ -273,7 +274,7 @@
               <i class="bi bi-lightbulb flex-shrink-0"></i>
               <div>
                 <h4>Engage Your Mind</h4>
-                <p class="fst-italic">Challenge your knowledge with a variety of trivia questions across different categories and difficulty levels. Improve your general knowledge in a fun, interactive way!</p>
+                <p class="fst-italic" style="font-size: 1rem;">Discover interactive experiences designed to entertain, challenge, and keep you engaged. Explore exciting features and enjoy a smooth, user-friendly experience!</p>
               </div>
             </div><!-- End Features Item-->
 
@@ -281,8 +282,7 @@
               <i class="bi bi-book flex-shrink-0"></i>
               <div>
                 <h4>Learn and Play</h4>
-                <p class="fst-italic">Explore new facts and figures with every trivia question. Whether you're a history buff, science enthusiast, 
-                  or pop culture aficionado, there’s something for everyone.</p>
+                <p class="fst-italic" style="font-size: 1rem;">Experience a platform built for creativity, exploration, and continuous discovery. Enjoy new content, features, and activities as Sora keeps evolving!</p>
               </div>
             </div><!-- End Features Item-->
 
@@ -290,8 +290,7 @@
               <i class="bi bi-controller flex-shrink-0"></i>
               <div>
                 <h4>Interactive and Fun</h4>
-                <p class="fst-italic">The trivia game is designed to be easy to use and fun to play, with instant feedback on your answers and a score to measure your performance. 
-                  Perfect for a quick break or a long trivia session.</p>
+                <p class="fst-italic" style="font-size: 1rem;">Designed with simplicity and enjoyment in mind, Sora offers a modern and engaging environment where users can relax, explore, and have fun anytime!</p>
               </div>
             </div><!-- End Features Item-->
           </div>
@@ -623,6 +622,6 @@
   <script src="static/js/main.js"></script>
   <script src="static/js/no.js"></script>
   <script src="static/js/yes.js"></script>
-  <script src="static/js/quiz.js"></script>
+  <!-- <script src="static/js/quiz.js"></script> -->
 
 </body>
