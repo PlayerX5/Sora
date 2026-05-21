@@ -354,7 +354,7 @@ h7 {
   }
 
   .navmenu a:hover {
-    background-color: var(--nav-dropdown-hover-color);
+    background-color: var(--heading-color);
   }
 
   .navmenu .active i,
@@ -407,10 +407,20 @@ h7 {
     padding: 10px;
   }
 
+  .fun-submenu li {
+    width: 100%;
+    display: block !important;
+  }
+
   .fun-submenu li a {
     padding: 10px 20px;
     font-size: 24px;
     color: #333333 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
   }
 }
 /*--------------------------------------------------------------
@@ -1051,6 +1061,7 @@ section,
   border-radius: 12px;
   padding: 10px;
   min-width: 160px;
+  width: 180px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
   z-index: 1000;
@@ -1059,6 +1070,11 @@ section,
   transform: translateX(-50%) translateY(-8px);
   transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
   pointer-events: none;
+}
+
+.fun-submenu li {
+  width: 100%;
+  display: block !important;
 }
 
 .fun-dropdown:hover .fun-submenu,
@@ -1070,9 +1086,10 @@ section,
 }
 
 .fun-submenu li a {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 10px 16px;
   border-radius: 8px;
   color: rgba(255, 255, 255, 0.85) !important;
@@ -1081,11 +1098,12 @@ section,
   letter-spacing: 0.5px;
   transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
   white-space: nowrap;
+  justify-content: flex-start !important;
 }
 
 .fun-submenu li a:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #fff !important;
+  color: var(--heading-color) !important;
   padding-left: 22px;
 }
 
@@ -1096,6 +1114,10 @@ section,
 
 /* Mobile Fun Dropdown */
 @media (max-width: 1199px) {
+  .fun-submenu li {
+    width: 100%;
+  }
+
   .fun-submenu {
     display: none;
     position: static !important;
@@ -1124,8 +1146,15 @@ section,
     background-color: transparent !important;
   }
 
+  .fun-submenu li a:focus {
+    justify-content: flex-start !important;
+    width: 100% !important;
+    display: flex !important;
+  }
+
   .fun-submenu li a:hover {
-    background-color: var(--nav-dropdown-hover-color) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #151515 !important;
   }
 }
 

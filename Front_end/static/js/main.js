@@ -18,6 +18,10 @@
    * Mobile nav toggle
    */
   const mobileNavToggleBtn = document.querySelector('.mobile-nav-toggle');
+  const funDropdownLink = document.querySelector('.fun-dropdown > a');
+  const funSubmenu = document.querySelector('.fun-submenu');
+  const funChevron = document.querySelector('.fun-dropdown > a > i');
+
 
   function mobileNavToogle() {
     document.querySelector('body').classList.toggle('mobile-nav-active');
@@ -32,25 +36,42 @@
    * Hide mobile nav on same-page/hash links
    */
   document.querySelectorAll('#navmenu a').forEach(navmenu => {
-    navmenu.addEventListener('click', () => {
+    navmenu.addEventListener('click', (e) => {
       if (document.querySelector('.mobile-nav-active')) {
-        mobileNavToogle();
+        if (navmenu.closest('.fun-dropdown > a')) {
+          return; // don't close nav when clicking Fun
+        }
+        mobileNavToogle(); // close nav for all other links including Quiz
       }
     });
-
   });
 
   /**
    * Toggle mobile nav dropdowns
    */
-  document.querySelectorAll('.navmenu .toggle-dropdown').forEach(navmenu => {
-    navmenu.addEventListener('click', function(e) {
-      e.preventDefault();
-      this.parentNode.classList.toggle('active');
-      this.parentNode.nextElementSibling.classList.toggle('dropdown-active');
-      e.stopImmediatePropagation();
+  // document.querySelectorAll('.navmenu .toggle-dropdown').forEach(navmenu => {
+  //   navmenu.addEventListener('click', function(e) {
+  //     e.preventDefault();
+  //     this.parentNode.classList.toggle('active');
+  //     this.parentNode.nextElementSibling.classList.toggle('dropdown-active');
+  //     e.stopImmediatePropagation();
+  //   });
+  // });
+
+    /**
+   * Toggle mobile nav dropdowns for fundown
+   */
+  if (funDropdownLink) {
+    funDropdownLink.addEventListener('click', function(e) {
+      if (window.innerWidth <= 1199) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        funSubmenu.classList.toggle('dropdown-active');
+        funChevron.classList.toggle('bi-chevron-down');
+        funChevron.classList.toggle('bi-chevron-up');
+      }
     });
-  });
+  }
 
   /**
    * Preloader
@@ -186,6 +207,7 @@
   function navmenuScrollspy() {
     navmenulinks.forEach(navmenulink => {
       if (!navmenulink.hash) return;
+      if (navmenulink.closest('.fun-submenu')) return;
       let section = document.querySelector(navmenulink.hash);
       if (!section) return;
       let position = window.scrollY + 200;
