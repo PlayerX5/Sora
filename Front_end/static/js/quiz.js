@@ -1,6 +1,10 @@
 // Base URL for the sora API
 const API_BASE_URL = "/api";
 
+// Read difficulty from URL and auto-set it
+const urlParams = new URLSearchParams(window.location.search);
+const urlDifficulty = urlParams.get('difficulty');
+
 let currentQuestionIndex = 0;
 let numQuestions = 5;
 let questions = [];
@@ -17,6 +21,15 @@ function setSelectedDifficulty(difficulty) {
     // Update the displayed difficulty on the page
     const formattedDifficulty = selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1);
     document.getElementById("difficulty-display").innerText = formattedDifficulty;
+}
+
+if (urlDifficulty) {
+    setSelectedDifficulty(urlDifficulty);
+    // Also update the dropdown on quiz page if it exists
+    const quizDifficultySelector = document.querySelector('#difficulty-selector');
+    if (quizDifficultySelector) {
+        quizDifficultySelector.value = urlDifficulty;
+    }
 }
 
 // Function to start the quiz
@@ -110,6 +123,12 @@ function checkAnswer(selectedOption, questionIndex) {
     console.log(
         `Question: ${questions[questionIndex].question}, Selected: ${selectedOption}, Correct: ${correctAnswer}, Score: ${score}`
     );
+
+    // After the correct/incorrect classes are added, add this:
+    options.forEach(optionButton => {
+    optionButton.classList.add("answered");
+    optionButton.disabled = true; // prevents re-clicking too
+    });
 
     answeredQuestions.add(questionIndex);
     // Move to the next question or show the scorecard
