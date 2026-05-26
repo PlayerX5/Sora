@@ -402,7 +402,7 @@ h7 {
     width: 100%;
   }
 
-  .fun-submenu.dropdown-active {
+  /* .fun-submenu.dropdown-active {
     display: block;
     padding: 10px;
   }
@@ -421,7 +421,7 @@ h7 {
     justify-content: flex-start !important;
     box-sizing: border-box !important;
     text-align: left !important;
-  }
+  } */
 }
 /*--------------------------------------------------------------
 # Global Footer
@@ -1070,6 +1070,7 @@ section,
   transform: translateX(-50%) translateY(-8px);
   transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
   pointer-events: none;
+  flex-direction: column;
 }
 
 .fun-submenu li {
@@ -1114,7 +1115,7 @@ section,
 
 /* Mobile Fun Dropdown */
 @media (max-width: 1199px) {
-  .fun-submenu li {
+  /* .fun-submenu li {
     width: 100%;
   }
 
@@ -1140,8 +1141,8 @@ section,
   .fun-submenu li a {
     padding: 10px 20px !important;
     font-size: 24px !important;
-    color: var(--accent-color) !important; /* matches other nav items */
-    justify-content: flex-start !important; /* stops icon/text splitting */
+    color: var(--accent-color) !important;
+    justify-content: flex-start !important;
     gap: 10px !important;
     background-color: transparent !important;
   }
@@ -1150,6 +1151,51 @@ section,
     justify-content: flex-start !important;
     width: 100% !important;
     display: flex !important;
+  }
+
+  .fun-submenu li a:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #151515 !important;
+  } */
+  .fun-submenu {
+    display: none;
+    position: static !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    background: rgba(15, 15, 25, 0.5);
+    border-radius: 8px;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .fun-submenu.dropdown-active {
+    display: block;
+    padding: 10px;
+  }
+
+  .fun-submenu li {
+    width: 100%;
+    display: block !important;
+  }
+
+  .fun-submenu li a,
+  .fun-submenu li a:focus {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 10px 20px !important;
+    font-size: 24px !important;
+    color: var(--accent-color) !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background-color: transparent !important;
+    text-align: left !important;
   }
 
   .fun-submenu li a:hover {
@@ -1327,10 +1373,18 @@ section,
 
 .difficulty-section,
 .question-section,
-.options-section {
+.options-section,
+.detective-question-section,
+.detective-options-section {
   background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
   padding: 20px;
   border-radius: 8px;
+}
+
+.question-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .difficulty-section h3 {
@@ -1393,7 +1447,7 @@ h3 {
 }
 
 #question-text {
-  font-size: 50px;
+  font-size: 70px;
   color: white;
   margin-bottom: 20px;
   text-align: center; /* Ensures text alignment */
@@ -1418,7 +1472,7 @@ h3 {
   border-radius: 4px;
   /* cursor: pointer; */
   padding: 10px 20px; /* Add padding for a better look */
-  font-size: 18px; /* Increase font size */
+  font-size: 30px; /* Increase font size */
   font-family: 'Dancing Script', cursive; /* Custom font */
   cursor: pointer; /* Add a pointer cursor on hover */
   transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
@@ -1429,6 +1483,7 @@ h3 {
   color: white; /* White text */
   position: relative; /* Static button, doesn't move */
   transition: all 0.3s ease; /* Add a smooth transition for hover effects */
+  font-size: 25px;
 }
 
 #option-yes:hover {
@@ -1442,7 +1497,7 @@ h3 {
   transition: all 0.3s ease; /* Smooth transition for better UX */
   position: relative; /* Initially positioned relative to its container */
   z-index: 10; /* Ensure it stays on top when moving */
-
+  font-size: 25px;
 }
 
 #option-no:hover {
@@ -1452,6 +1507,36 @@ h3 {
 
 .option-button:hover {
   background-color: #620764;
+}
+
+.detective-question-text {
+  font-size: clamp(24px, 3vw, 42px);
+  color: white;
+  text-align: center;
+  margin: 0;
+}
+
+.detective-options-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.detective-play-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 4px;
+  font-family: 'Dancing Script', cursive;
+  font-size: 20px;
+  transition: all 0.3s ease;
+}
+
+.detective-play-btn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+  color: white;
 }
 
 /*--------------------------------------------------------------

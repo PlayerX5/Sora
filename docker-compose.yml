@@ -47,3 +47,6 @@ services:
 networks:
   sora_network:
     driver: bridge  # Use bridge networking for container communication
+
+volumes:
+  sora_db_data:
