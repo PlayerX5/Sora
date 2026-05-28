@@ -665,6 +665,233 @@
   <!-- Preloader -->
   <div id="preloader"></div>
 
+  <!-- Eye Element -->
+  <div id="eye-container">
+    <div id="eyeball">
+      <div id="pupil"></div>
+      <div id="eyelid"></div>
+    </div>
+    <div id="dialogue-bubble">
+      <span id="dialogue-text"></span>
+      <span id="typing-dots"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+
+  <script>
+    const eye = document.getElementById('eyeball');
+    const pupil = document.getElementById('pupil');
+    const eyelid = document.getElementById('eyelid');
+    const bubble = document.getElementById('dialogue-bubble');
+    const dialogueText = document.getElementById('dialogue-text');
+    const typingDots = document.getElementById('typing-dots');
+
+    const maxMove = 12;
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+    let cursorDetected = false;
+    let idleAngle = 0;
+    let lastCursorTime = Date.now();
+    let isAngry = false;
+
+    // Dialogue lines
+    const lines = [
+      "Psst… are you watching me? 👀",
+      "I see you. 👁️",
+      "Oh hey, you’re back 👀",
+      "I’m just here for moral support. ✨",
+      "You seem cool. 😎",
+      "Ever get the feeling you're being watched? 👁️",
+      "Careful, your curiosity is showing. 🧐",
+      "This page looks better with you on it. 🌟",
+      "You moved the cursor. I noticed. 🎯",
+      "My pupil is having an existential crisis. 😵‍💫",
+      "Existence is strange. Anyway, hi. 🌌",
+      "Stop staring. Actually… keep staring. 👁️‍🗨️",
+      "You found the tiny observer. 🔍",
+      "I guard this corner with honor. 🛡️",
+      "I’ve been practicing eye contact. 👀",
+      "I survive entirely on attention. 🫣",
+      "This is my emotional support webpage. 💻",
+      "I was born to follow cursors. 🖱️",
+      "I have no body. Only opinions. 🤖",
+      "I’m legally classified as decoration. 🪴",
+      "I took a course in advanced staring. 🎓",
+      "Your cursor and I are in a complicated relationship. 💔",
+      "I would wave if I had arms. 👋",
+      "My hobbies include observing and blinking. 👁️",
+      "I was promised snacks. 🍪",
+      "A tiny eye believes in you. 💖",
+      "Hope your day’s going okay. 🌤️",
+      "You make this page feel alive. ⚡",
+      "Somebody appreciates your presence. It’s me. 🫶",
+      "Powered by caffeine and questionable JavaScript. ☕",
+      "Trust me, the CSS was harder than it looks. 🎨",
+      "You’re doing better than you think. 🌈",
+      "Today feels lucky. 🍀",
+    ];
+
+    let usedLines = [];
+    let bubbleTimeout = null;
+    let typeTimeout = null;
+
+    function getNextLine() {
+      if (usedLines.length >= lines.length) usedLines = [];
+      const remaining = lines.filter(l => !usedLines.includes(l));
+      const line = remaining[Math.floor(Math.random() * remaining.length)];
+      usedLines.push(line);
+      return line;
+    }
+
+    function typeLine(text, onDone) {
+      dialogueText.textContent = '';
+      typingDots.style.display = 'inline-flex';
+      let i = 0;
+      typeTimeout = setTimeout(function typeChar() {
+        typingDots.style.display = 'none';
+        if (i < text.length) {
+          dialogueText.textContent += text[i++];
+          typeTimeout = setTimeout(typeChar, 32 + Math.random() * 24);
+        } else {
+          if (onDone) onDone();
+        }
+      }, 700);
+    }
+
+    function showDialogue() {
+      if (bubbleTimeout) clearTimeout(bubbleTimeout);
+      if (typeTimeout) clearTimeout(typeTimeout);
+      const line = getNextLine();
+      dialogueText.textContent = '';
+      typingDots.style.display = 'inline-flex';
+      bubble.classList.add('visible');
+      typeLine(line, () => {
+        bubbleTimeout = setTimeout(hideDialogue, 2800 + line.length * 18);
+      });
+    }
+
+    function hideDialogue() {
+      bubble.classList.remove('visible');
+      if (typeTimeout) clearTimeout(typeTimeout);
+    }
+
+    function scheduleDialogue() {
+      const next = 8000 + Math.random() * 8000;
+      setTimeout(() => {
+        showDialogue();
+        scheduleDialogue();
+      }, next);
+    }
+
+    setTimeout(showDialogue, 1500);
+    scheduleDialogue();
+
+    // Cursor tracking
+    document.addEventListener('mousemove', (e) => {
+      cursorDetected = true;
+      lastCursorTime = Date.now();
+      const rect = eye.getBoundingClientRect();
+      const eyeCenterX = rect.left + rect.width / 2;
+      const eyeCenterY = rect.top + rect.height / 2;
+      const dx = e.clientX - eyeCenterX;
+      const dy = e.clientY - eyeCenterY;
+      const angle = Math.atan2(dy, dx);
+      targetX = Math.cos(angle) * maxMove;
+      targetY = Math.sin(angle) * maxMove;
+    });
+
+    // Smooth animation loop
+    function animateEye() {
+      const now = Date.now();
+
+      // If no cursor for 2 seconds, do idle movement
+      if (now - lastCursorTime > 2000) {
+        cursorDetected = false;
+        idleAngle += 0.015;
+        targetX = Math.cos(idleAngle) * maxMove * 0.6;
+        targetY = Math.sin(idleAngle * 0.7) * maxMove * 0.4;
+      }
+
+      // Smooth follow
+      currentX += (targetX - currentX) * 0.12;
+      currentY += (targetY - currentY) * 0.12;
+      pupil.style.transform = `translate(${currentX}px, ${currentY}px)`;
+
+      // Eyelid follows vertical movement slightly
+      const eyelidOffset = currentY * 0.4;
+      eyelid.style.transform = `translateY(calc(-100% + ${eyelidOffset}px))`;
+
+      // Eye click reaction
+      eye.style.pointerEvents = 'auto';
+
+      const angryLines = [
+        "OW! Did you just poke me?! 😤",
+        "EXCUSE ME. Personal space! 😡",
+        "That was completely unnecessary. 😠",
+        "I am NOT a button! 🤬",
+        "Do that again and I'll stare at you forever. 👁️",
+        "RUDE. Absolutely rude. 😤",
+        "I have feelings you know! 💢",
+        "My optometrist warned me about people like you. 😡",
+      ];
+
+      eye.addEventListener('click', () => {
+        if (isAngry) return;
+        isAngry = true;
+
+        // Turn red and black
+        eye.style.background = 'radial-gradient(circle at 40% 35%, #ff4444, #8b0000)';
+        eye.style.borderColor = '#ff0000';
+        eye.style.boxShadow = '0 8px 25px rgba(255,0,0,0.6), 0 4px 10px rgba(255,0,0,0.4)';
+        pupil.style.background = 'radial-gradient(circle at 35% 35%, #440000, #000000)';
+
+        // Show angry dialogue
+        const line = angryLines[Math.floor(Math.random() * angryLines.length)];
+        if (bubbleTimeout) clearTimeout(bubbleTimeout);
+        if (typeTimeout) clearTimeout(typeTimeout);
+        dialogueText.textContent = '';
+        typingDots.style.display = 'inline-flex';
+        bubble.classList.add('visible');
+        typeLine(line, () => {
+          bubbleTimeout = setTimeout(hideDialogue, 3000);
+        });
+
+        // Return to normal after 4-5 seconds
+        setTimeout(() => {
+          eye.style.background = 'radial-gradient(circle at 40% 35%, #ffffff, #d0d0d0)';
+          eye.style.borderColor = '#222';
+          eye.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 -4px 8px rgba(0,0,0,0.15)';
+          pupil.style.background = 'radial-gradient(circle at 35% 35%, #3a3a6a, #1a1a2e)';
+          isAngry = false;
+        }, 4500);
+      });
+
+      requestAnimationFrame(animateEye);
+    }
+    animateEye();
+
+    // Blinking
+    function blink() {
+      eyelid.style.transition = 'transform 0.08s ease';
+      eyelid.style.transform = 'translateY(35%)';
+      setTimeout(() => {
+        eyelid.style.transform = 'translateY(-100%)';
+      }, 150);
+    }
+
+    function scheduleNextBlink() {
+      const nextBlink = 2000 + Math.random() * 3000;
+      setTimeout(() => {
+        blink();
+        if (Math.random() < 0.2) {
+          setTimeout(blink, 250);
+        }
+        scheduleNextBlink();
+      }, nextBlink);
+    }
+
+    scheduleNextBlink();
+  </script>
+
   <!-- Vendor JS Files -->
   <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="static/vendor/php-email-form/validate.js"></script>
