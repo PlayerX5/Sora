@@ -667,6 +667,7 @@
 
   <!-- Eye Element -->
   <div id="eye-container">
+    <div id="close-eye-btn">✕</div>
     <div id="eyeball">
       <div id="pupil"></div>
       <div id="eyelid"></div>
@@ -864,6 +865,46 @@
           isAngry = false;
         }, 4500);
       });
+
+      // Mobile drag and close — only on touch devices
+      if ('ontouchstart' in window) {
+        const container = document.getElementById('eye-container');
+        const closeBtn = document.getElementById('close-eye-btn');
+        let dragging = false;
+        let startX, startY, origLeft, origBottom;
+
+        container.addEventListener('touchstart', (e) => {
+          if (e.target === closeBtn) return;
+          dragging = true;
+          const touch = e.touches[0];
+          startX = touch.clientX;
+          startY = touch.clientY;
+          const rect = container.getBoundingClientRect();
+          origLeft = rect.left;
+          origBottom = window.innerHeight - rect.bottom;
+          container.style.transition = 'none';
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+          if (!dragging) return;
+          const touch = e.touches[0];
+          const dx = touch.clientX - startX;
+          const dy = touch.clientY - startY;
+          const newLeft = Math.max(0, Math.min(window.innerWidth - 80, origLeft + dx));
+          const newBottom = Math.max(0, Math.min(window.innerHeight - 80, origBottom - dy));
+          container.style.left = newLeft + 'px';
+          container.style.bottom = newBottom + 'px';
+        }, { passive: true });
+
+        document.addEventListener('touchend', () => { dragging = false; });
+
+        closeBtn.addEventListener('click', () => {
+          container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          container.style.opacity = '0';
+          container.style.transform = 'scale(0)';
+          setTimeout(() => { container.style.display = 'none'; }, 300);
+        });
+      }
 
       requestAnimationFrame(animateEye);
     }
