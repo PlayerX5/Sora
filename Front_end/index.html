@@ -65,6 +65,11 @@
                   <i class="bi bi-search"></i> Detective
                 </a>
               </li>
+              <li>
+                <a href="/#about_pong">
+                  <i class="bi bi-joystick"></i> Pong
+                </a>
+              </li>
             </ul>
           </li>
           <li><a href="#team">Team</a></li>
@@ -430,6 +435,413 @@
 
     <!-- /Call To Action Section -->
 
+    <!-- About Pong Section -->
+    <section id="about_pong" class="about quiz section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4 align-items-center">
+          <!-- LEFT: About text -->
+          <div class="col-lg-6 order-2 order-lg-1 content section-title">
+            <h2>F3</h2>
+            <h3>Sora Pong</h3>
+            <p class="fst-italic">
+              Sora Pong is a classic arcade reimagined — play against a smart AI opponent or challenge a friend
+              in local two-player mode. Choose your game mode, set a winning score limit, and battle it out on
+              the retro pixel court.
+            </p>
+            <ul>
+              <li><i class="bi bi-check2-all"></i> <span>Player vs AI with adaptive difficulty.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Local Player vs Player mode.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Endless or score-limit game modes.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Retro CRT pixel aesthetic.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Keyboard controls — responsive and smooth.</span></li>
+            </ul>
+            <p class="fst-italic">
+              <strong>Controls — vs AI:</strong> ↑ / ↓ arrow keys.<br>
+              <strong>Controls — vs Player:</strong> Player 1 uses W / S &nbsp;|&nbsp; Player 2 uses ↑ / ↓.
+            </p>
+          </div>
+          <!-- RIGHT: Pong game embedded -->
+          <div class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center align-items-center">
+            <div id="pong-wrapper">
+              <!-- Game settings panel -->
+              <div id="pong-settings">
+                <p class="pong-settings-title">Choose Your Game</p>
+                <p class="pong-label">Mode</p>
+                <div class="pong-btn-group" id="mode-group">
+                  <button class="pong-toggle active" data-val="ai" onclick="pongSetMode('ai',this)">vs AI</button>
+                  <button class="pong-toggle" data-val="pvp" onclick="pongSetMode('pvp',this)">vs Player</button>
+                </div>
+                <p class="pong-label" style="margin-top:14px;">Score Limit</p>
+                <div class="pong-btn-group" id="limit-group">
+                  <button class="pong-toggle active" data-val="5" onclick="pongSetLimit('5',this)">5</button>
+                  <button class="pong-toggle" data-val="10" onclick="pongSetLimit('10',this)">10</button>
+                  <button class="pong-toggle" data-val="0" onclick="pongSetLimit('0',this)">∞ Endless</button>
+                </div>
+                <button id="pong-start-btn" onclick="pongStart()">Play Now</button>
+              </div>
+              <!-- Score bar -->
+              <!-- Score bar -->
+              <div id="pong-scorebar">
+                <span class="pong-score-label" id="pong-p1-label">You</span>
+                <span class="pong-score-num" id="pong-score-p1">0</span>
+                <span class="pong-score-divider">—</span>
+                <span class="pong-score-num" id="pong-score-p2">0</span>
+                <span class="pong-score-label" id="pong-p2-label">AI</span>
+                <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">⏸</button>
+              </div>
+              <!-- Canvas -->
+              <canvas id="pong-canvas" width="460" height="300"></canvas>
+              <!-- Controls hint -->
+              <div id="pong-controls-hint"></div>
+              <!-- Result overlay -->
+              <div id="pong-result">
+                <span id="pong-result-text"></span>
+                <button onclick="pongReset()">Play Again</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /About Pong Section -->
+
+    <script>
+    /* ─────────────────────────────────────────
+       SORA PONG — themed
+    ───────────────────────────────────────── */
+    (function () {
+      const canvas  = document.getElementById('pong-canvas');
+      const ctx     = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+
+      // Theme colors pulled from CSS vars (read at runtime)
+      function getCSSVar(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      }
+
+      // Settings
+      let pongMode  = 'ai';
+      let pongLimit = 5;
+
+      // Game state
+      let running = false, paused = false, raf = null;
+
+      const PAD_W = 12, PAD_H = 64, PAD_SPEED = 4.5;
+      const BALL_R = 7;
+
+      let p1 = { y: H/2 - PAD_H/2, score: 0 };
+      let p2 = { y: H/2 - PAD_H/2, score: 0 };
+      let ball = {};
+
+      const keys = {};
+      document.addEventListener('keydown', e => {
+        keys[e.key] = true;
+        if (['ArrowUp','ArrowDown'].includes(e.key) && running) e.preventDefault();
+        if ((e.key === 'p' || e.key === 'P') && running) pongTogglePause();
+      });
+      document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+      function resetBall(dir) {
+        const angle = (Math.random() * 0.5 - 0.25);
+        const spd = 4.2;
+        ball = {
+          x: W/2, y: H/2,
+          vx: spd * dir * Math.cos(angle),
+          vy: spd * Math.sin(angle)
+        };
+      }
+
+      function pongInit() {
+        p1.y = H/2 - PAD_H/2;
+        p2.y = H/2 - PAD_H/2;
+        p1.score = 0;
+        p2.score = 0;
+        updateScoreDOM();
+        resetBall(1);
+      }
+
+      function updateScoreDOM() {
+        document.getElementById('pong-score-p1').textContent = p1.score;
+        document.getElementById('pong-score-p2').textContent = p2.score;
+      }
+
+      function draw() {
+        const bg      = getCSSVar('--background-color') || '#98e4d9';
+        const accent  = getCSSVar('--accent-color')     || '#3EA055';
+        const surface = getCSSVar('--surface-color')    || '#ffffff';
+        const defColor = getCSSVar('--default-color')   || '#444444';
+
+        // Background — teal tint of site
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // Subtle grid lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+        ctx.lineWidth = 1;
+        for (let x = 40; x < W; x += 40) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        }
+        for (let y = 40; y < H; y += 40) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        }
+
+        // Center dashed divider
+        ctx.setLineDash([10, 12]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Paddle 1 — accent green with rounded rect
+        ctx.fillStyle = accent;
+        ctx.shadowColor = accent;
+        ctx.shadowBlur = 10;
+        roundRect(ctx, 14, p1.y, PAD_W, PAD_H, 4);
+        ctx.fill();
+
+        // Paddle 2 — purple (#af69ed) on right
+        ctx.fillStyle = '#af69ed';
+        ctx.shadowColor = '#af69ed';
+        ctx.shadowBlur = 10;
+        roundRect(ctx, W - 14 - PAD_W, p2.y, PAD_W, PAD_H, 4);
+        ctx.fill();
+
+        // Ball — white circle with glow
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(255,255,255,0.8)';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+
+      function aiMove() {
+        const center = p2.y + PAD_H / 2;
+        const spd = PAD_SPEED * 0.80;
+        if (ball.vx > 0) {
+          if (center < ball.y - 5) p2.y = Math.min(H - PAD_H, p2.y + spd);
+          else if (center > ball.y + 5) p2.y = Math.max(0, p2.y - spd);
+        }
+      }
+
+      function update() {
+        if (pongMode === 'ai') {
+          if (keys['ArrowUp'])   p1.y = Math.max(0, p1.y - PAD_SPEED);
+          if (keys['ArrowDown']) p1.y = Math.min(H - PAD_H, p1.y + PAD_SPEED);
+          aiMove();
+        } else {
+          if (keys['w'] || keys['W']) p1.y = Math.max(0, p1.y - PAD_SPEED);
+          if (keys['s'] || keys['S']) p1.y = Math.min(H - PAD_H, p1.y + PAD_SPEED);
+          if (keys['ArrowUp'])   p2.y = Math.max(0, p2.y - PAD_SPEED);
+          if (keys['ArrowDown']) p2.y = Math.min(H - PAD_H, p2.y + PAD_SPEED);
+        }
+
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+
+        if (ball.y - BALL_R <= 0)  { ball.y = BALL_R;    ball.vy *= -1; }
+        if (ball.y + BALL_R >= H)  { ball.y = H - BALL_R; ball.vy *= -1; }
+
+        const p1x = 14, p2x = W - 14 - PAD_W;
+
+        if (ball.vx < 0 &&
+            ball.x - BALL_R <= p1x + PAD_W &&
+            ball.x - BALL_R >= p1x - 2 &&
+            ball.y + BALL_R >= p1.y && ball.y - BALL_R <= p1.y + PAD_H) {
+          ball.x = p1x + PAD_W + BALL_R;
+          const hitPos = (ball.y - (p1.y + PAD_H/2)) / (PAD_H/2);
+          const angle  = hitPos * 0.9;
+          const spd    = Math.min(Math.hypot(ball.vx, ball.vy) * 1.04, 11);
+          ball.vx =  spd * Math.cos(angle);
+          ball.vy =  spd * Math.sin(angle);
+        }
+
+        if (ball.vx > 0 &&
+            ball.x + BALL_R >= p2x &&
+            ball.x + BALL_R <= p2x + PAD_W + 2 &&
+            ball.y + BALL_R >= p2.y && ball.y - BALL_R <= p2.y + PAD_H) {
+          ball.x = p2x - BALL_R;
+          const hitPos = (ball.y - (p2.y + PAD_H/2)) / (PAD_H/2);
+          const angle  = hitPos * 0.9;
+          const spd    = Math.min(Math.hypot(ball.vx, ball.vy) * 1.04, 11);
+          ball.vx = -spd * Math.cos(angle);
+          ball.vy =  spd * Math.sin(angle);
+        }
+
+        if (ball.x < 0) {
+          p2.score++;
+          updateScoreDOM();
+          checkWin('p2');
+          resetBall(1);
+        }
+        if (ball.x > W) {
+          p1.score++;
+          updateScoreDOM();
+          checkWin('p1');
+          resetBall(-1);
+        }
+      }
+
+      function checkWin(scorer) {
+        if (pongLimit === 0) return;
+        const score = scorer === 'p1' ? p1.score : p2.score;
+        if (score >= pongLimit) {
+          running = false;
+          cancelAnimationFrame(raf);
+          const label = scorer === 'p1'
+            ? (pongMode === 'ai' ? 'You Win! 🎉' : 'Player 1 Wins! 🎉')
+            : (pongMode === 'ai' ? 'AI Wins! 🤖' : 'Player 2 Wins! 🎉');
+          document.getElementById('pong-result-text').textContent = label;
+          document.getElementById('pong-result').style.display = 'flex';
+        }
+      }
+
+      function drawPauseOverlay() {
+        const accent = getCSSVar('--accent-color') || '#3EA055';
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = accent;
+        ctx.font = 'bold 22px "Dancing Script", cursive';
+        ctx.textAlign = 'center';
+        ctx.fillText('Paused', W/2, H/2 - 10);
+        ctx.font = '13px "Dancing Script", cursive';
+        ctx.fillStyle = '#444';
+        ctx.fillText('press P or tap ⏸ to resume', W/2, H/2 + 16);
+      }
+
+      function loop() {
+        if (!running) return;
+        if (!paused) update();
+        draw();
+        if (paused) drawPauseOverlay();
+        raf = requestAnimationFrame(loop);
+      }
+
+      window.pongSetMode = function(val, btn) {
+        pongMode = val;
+        document.querySelectorAll('#mode-group .pong-toggle').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+      window.pongSetLimit = function(val, btn) {
+        pongLimit = parseInt(val);
+        document.querySelectorAll('#limit-group .pong-toggle').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+      window.pongStart = function() {
+        // Update labels
+        const p1lbl = document.getElementById('pong-p1-label');
+        const p2lbl = document.getElementById('pong-p2-label');
+        if (pongMode === 'ai') {
+          p1lbl.textContent = 'You'; p2lbl.textContent = 'AI';
+        } else {
+          p1lbl.textContent = 'P1'; p2lbl.textContent = 'P2';
+        }
+        // Controls hint
+        const hint = document.getElementById('pong-controls-hint');
+        if (pongMode === 'ai') {
+          hint.textContent = '↑ ↓  Move your paddle';
+        } else {
+          hint.textContent = 'P1: W / S   •   P2: ↑ / ↓';
+        }
+        hint.classList.add('visible');
+
+        document.getElementById('pong-settings').style.display = 'none';
+        document.getElementById('pong-result').style.display = 'none';
+        document.getElementById('pong-scorebar').classList.add('visible');
+        canvas.style.display = 'block';
+        pongInit();
+        running = true;
+        loop();
+      };
+      window.pongTogglePause = function() {
+        if (!running) return;
+        paused = !paused;
+        document.getElementById('pong-pause-btn').textContent = paused ? '▶' : '⏸';
+      };
+      window.pongReset = function() {
+        running = false;
+        paused = false;
+        cancelAnimationFrame(raf);
+        canvas.style.display = 'none';
+        document.getElementById('pong-result').style.display = 'none';
+        document.getElementById('pong-scorebar').classList.remove('visible');
+        document.getElementById('pong-controls-hint').classList.remove('visible');
+        document.getElementById('pong-pause-btn').textContent = '⏸';
+        document.getElementById('pong-settings').style.display = 'flex';
+      };
+
+      // ── Mobile drag controls ───────────────────────────────────
+      (function setupTouch() {
+        let t1StartY = null, t2StartY = null;
+        let t1PadStartY = null, t2PadStartY = null;
+
+        function getTouchSide(touchX) {
+          const rect = canvas.getBoundingClientRect();
+          const relX = touchX - rect.left;
+          return relX < rect.width / 2 ? 'left' : 'right';
+        }
+
+        canvas.addEventListener('touchstart', e => {
+          if (!running || paused) return;
+          e.preventDefault();
+          for (const t of e.changedTouches) {
+            const side = getTouchSide(t.clientX);
+            if (side === 'left') {
+              t1StartY = t.clientY; t1PadStartY = p1.y;
+            } else {
+              t2StartY = t.clientY; t2PadStartY = p2.y;
+            }
+          }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', e => {
+          if (!running || paused) return;
+          e.preventDefault();
+          for (const t of e.changedTouches) {
+            const side = getTouchSide(t.clientX);
+            const scaleY = H / canvas.getBoundingClientRect().height;
+            if (side === 'left' && t1StartY !== null) {
+              const dy = (t.clientY - t1StartY) * scaleY;
+              p1.y = Math.max(0, Math.min(H - PAD_H, t1PadStartY + dy));
+            } else if (side === 'right' && t2StartY !== null) {
+              if (pongMode === 'pvp') {
+                const dy = (t.clientY - t2StartY) * scaleY;
+                p2.y = Math.max(0, Math.min(H - PAD_H, t2PadStartY + dy));
+              }
+            }
+          }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', e => {
+          for (const t of e.changedTouches) {
+            const side = getTouchSide(t.clientX);
+            if (side === 'left') { t1StartY = null; t1PadStartY = null; }
+            else                 { t2StartY = null; t2PadStartY = null; }
+          }
+        });
+      })();
+
+      canvas.style.display = 'none';
+    })();
+    </script>
+
     <!-- Team Section -->
     <section id="team" class="team section">
 
@@ -678,6 +1090,9 @@
     </div>
   </div>
 
+  <!-- Thunder canvas overlay -->
+  <canvas id="thunder-canvas"></canvas>
+
   <script>
     const eye = document.getElementById('eyeball');
     const pupil = document.getElementById('pupil');
@@ -685,7 +1100,10 @@
     const bubble = document.getElementById('dialogue-bubble');
     const dialogueText = document.getElementById('dialogue-text');
     const typingDots = document.getElementById('typing-dots');
+    const thunderCanvas = document.getElementById('thunder-canvas');
+    const ctx = thunderCanvas.getContext('2d');
 
+    const BASE_SIZE = 42;
     const maxMove = 12;
     let targetX = 0, targetY = 0;
     let currentX = 0, currentY = 0;
@@ -694,12 +1112,17 @@
     let lastCursorTime = Date.now();
     let isAngry = false;
 
-    // Dialogue lines
+    // ── Click rage counter ─────────────────────────────────────────
+    let clickCount = 0;
+    let clickResetTimer = null;
+    let goneBlackWhite = false;
+
+    // ── Dialogue lines ─────────────────────────────────────────────
     const lines = [
       "Psst… are you watching me? 👀",
       "I see you. 👁️",
-      "Oh hey, you’re back 👀",
-      "I’m just here for moral support. ✨",
+      "Oh hey, you're back 👀",
+      "I'm just here for moral support. ✨",
       "You seem cool. 😎",
       "Ever get the feeling you're being watched? 👁️",
       "Careful, your curiosity is showing. 🧐",
@@ -710,25 +1133,58 @@
       "Stop staring. Actually… keep staring. 👁️‍🗨️",
       "You found the tiny observer. 🔍",
       "I guard this corner with honor. 🛡️",
-      "I’ve been practicing eye contact. 👀",
+      "I've been practicing eye contact. 👀",
       "I survive entirely on attention. 🫣",
       "This is my emotional support webpage. 💻",
       "I was born to follow cursors. 🖱️",
       "I have no body. Only opinions. 🤖",
-      "I’m legally classified as decoration. 🪴",
+      "I'm legally classified as decoration. 🪴",
       "I took a course in advanced staring. 🎓",
       "Your cursor and I are in a complicated relationship. 💔",
       "I would wave if I had arms. 👋",
       "My hobbies include observing and blinking. 👁️",
       "I was promised snacks. 🍪",
       "A tiny eye believes in you. 💖",
-      "Hope your day’s going okay. 🌤️",
+      "Hope your day's going okay. 🌤️",
       "You make this page feel alive. ⚡",
-      "Somebody appreciates your presence. It’s me. 🫶",
+      "Somebody appreciates your presence. It's me. 🫶",
       "Powered by caffeine and questionable JavaScript. ☕",
       "Trust me, the CSS was harder than it looks. 🎨",
-      "You’re doing better than you think. 🌈",
+      "You're doing better than you think. 🌈",
       "Today feels lucky. 🍀",
+    ];
+
+    const angryLines = [
+      "OW! Did you just poke me?! 😤",
+      "EXCUSE ME. Personal space! 😡",
+      "That was completely unnecessary. 😠",
+      "I am NOT a button! 🤬",
+      "Do that again and I'll stare at you forever. 👁️",
+      "RUDE. Absolutely rude. 😤",
+      "I have feelings you know! 💢",
+      "My optometrist warned me about people like you. 😡",
+    ];
+
+    const warningLines = [
+      "I'm warning you. Stop. 😠⚡",
+      "You have NO idea what you're doing. ⚠️",
+      "This is your last warning. 😤🔥",
+      "I can feel my power growing… 🌩️",
+      "Keep going. I dare you. 👁️⚡",
+    ];
+
+    const thunderLines = [
+      "YOU ASKED FOR THIS. ⚡⚡⚡",
+      "FEEL THE WRATH OF THE EYE. 🌩️👁️",
+      "BEHOLD. CHAOS. ⚡💥⚡",
+      "THE EYE HAS SPOKEN. 🌩️🌩️",
+    ];
+
+    const bwLines = [
+      "...You did this. 🖤",
+      "I'm gone. Happy now? 🤍",
+      "The color died with your mercy. 🖤🤍",
+      "This is what you wanted. Silence. 🖤",
     ];
 
     let usedLines = [];
@@ -758,10 +1214,10 @@
       }, 700);
     }
 
-    function showDialogue() {
+    function showDialogue(customLine) {
       if (bubbleTimeout) clearTimeout(bubbleTimeout);
       if (typeTimeout) clearTimeout(typeTimeout);
-      const line = getNextLine();
+      const line = customLine || getNextLine();
       dialogueText.textContent = '';
       typingDots.style.display = 'inline-flex';
       bubble.classList.add('visible');
@@ -778,7 +1234,7 @@
     function scheduleDialogue() {
       const next = 8000 + Math.random() * 8000;
       setTimeout(() => {
-        showDialogue();
+        if (!goneBlackWhite) showDialogue();
         scheduleDialogue();
       }, next);
     }
@@ -786,7 +1242,220 @@
     setTimeout(showDialogue, 1500);
     scheduleDialogue();
 
-    // Cursor tracking
+    // ── Eye size scaling ───────────────────────────────────────────
+    function updateEyeSize(count) {
+      // Grows up to ~2.5x at 20 clicks, capped
+      const scale = Math.min(1 + count * 0.075, 2.5);
+      const size = Math.round(BASE_SIZE * scale);
+      eye.style.width = size + 'px';
+      eye.style.height = size + 'px';
+      // Pupil scales proportionally
+      const pupilSize = Math.round(16 * scale);
+      pupil.style.width = pupilSize + 'px';
+      pupil.style.height = pupilSize + 'px';
+    }
+
+    // ── Thunder effect ─────────────────────────────────────────────
+    function resizeCanvas() {
+      thunderCanvas.width = window.innerWidth;
+      thunderCanvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function drawBolt(x1, y1, x2, y2, spread, depth) {
+      if (depth === 0) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        return;
+      }
+      const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * spread;
+      const my = (y1 + y2) / 2 + (Math.random() - 0.5) * spread;
+      drawBolt(x1, y1, mx, my, spread / 2, depth - 1);
+      drawBolt(mx, my, x2, y2, spread / 2, depth - 1);
+      // Occasional branch
+      if (Math.random() < 0.4) {
+        const bx = mx + (Math.random() - 0.5) * spread * 2;
+        const by = my + spread * (0.5 + Math.random());
+        drawBolt(mx, my, bx, by, spread / 3, depth - 2);
+      }
+    }
+
+    function strikeThunder() {
+      resizeCanvas();
+      thunderCanvas.style.display = 'block';
+      let flashes = 0;
+      const maxFlashes = 5 + Math.floor(Math.random() * 4);
+
+      function flash() {
+        ctx.clearRect(0, 0, thunderCanvas.width, thunderCanvas.height);
+
+        // Background flash
+        ctx.fillStyle = `rgba(180, 180, 255, ${0.08 + Math.random() * 0.12})`;
+        ctx.fillRect(0, 0, thunderCanvas.width, thunderCanvas.height);
+
+        const numBolts = 2 + Math.floor(Math.random() * 3);
+        for (let b = 0; b < numBolts; b++) {
+          const startX = Math.random() * thunderCanvas.width;
+          const endX = startX + (Math.random() - 0.5) * 300;
+          ctx.strokeStyle = `rgba(${180 + Math.random()*75}, ${180 + Math.random()*75}, 255, ${0.7 + Math.random() * 0.3})`;
+          ctx.lineWidth = 1 + Math.random() * 2;
+          ctx.shadowColor = '#aaaaff';
+          ctx.shadowBlur = 18;
+          drawBolt(startX, 0, endX, thunderCanvas.height * (0.4 + Math.random() * 0.6), 120, 6);
+        }
+
+        flashes++;
+        if (flashes < maxFlashes) {
+          setTimeout(flash, 60 + Math.random() * 100);
+        } else {
+          setTimeout(() => {
+            ctx.clearRect(0, 0, thunderCanvas.width, thunderCanvas.height);
+            thunderCanvas.style.display = 'none';
+          }, 150);
+        }
+      }
+
+      // Screen shake
+      document.body.classList.add('screen-shake');
+      setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+
+      if (navigator.vibrate) navigator.vibrate([80, 30, 80, 30, 120]);
+      flash();
+    }
+
+    // ── Black & white takeover ─────────────────────────────────────
+    function goBlackAndWhite() {
+      goneBlackWhite = true;
+
+      // Eye vanishes
+      eye.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      eye.style.transform = 'scale(0)';
+      eye.style.opacity = '0';
+
+      // Page goes grayscale with a slow fade
+      document.documentElement.style.transition = 'filter 1.5s ease';
+      document.documentElement.style.filter = 'grayscale(100%) brightness(0.85)';
+
+      const line = bwLines[Math.floor(Math.random() * bwLines.length)];
+      showDialogue(line);
+
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+
+      // After 8s slowly restore everything
+      setTimeout(() => {
+        document.documentElement.style.filter = '';
+        eye.style.transform = 'scale(1)';
+        eye.style.opacity = '1';
+        // Reset eye size and count
+        clickCount = 0;
+        goneBlackWhite = false;
+        updateEyeSize(0);
+        eye.style.background = 'radial-gradient(circle at 40% 35%, #ffffff, #d0d0d0)';
+        eye.style.borderColor = '#222';
+        eye.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 -4px 8px rgba(0,0,0,0.15)';
+        pupil.style.background = 'radial-gradient(circle at 35% 35%, #3a3a6a, #1a1a2e)';
+        isAngry = false;
+        showDialogue("...I'm back. Don't make me do that again. 👁️");
+      }, 8000);
+    }
+
+    // ── Eye click / press ──────────────────────────────────────────
+    let angryResetTimer = null;
+
+    eye.addEventListener('click', () => {
+      if (goneBlackWhite) return;
+
+      clickCount++;
+
+      // Reset click counter after 4s of no clicks
+      clearTimeout(clickResetTimer);
+      clickResetTimer = setTimeout(() => {
+        clickCount = 0;
+        updateEyeSize(0);
+        // Restore normal look if not already
+        if (!goneBlackWhite) {
+          eye.style.background = 'radial-gradient(circle at 40% 35%, #ffffff, #d0d0d0)';
+          eye.style.borderColor = '#222';
+          eye.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 -4px 8px rgba(0,0,0,0.15)';
+          pupil.style.background = 'radial-gradient(circle at 35% 35%, #3a3a6a, #1a1a2e)';
+          isAngry = false;
+        }
+      }, 4000);
+
+      // Grow eye with each click
+      updateEyeSize(clickCount);
+
+      // Vibrate
+      if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+
+      // Shake
+      eye.classList.remove('shaking');
+      void eye.offsetWidth;
+      eye.classList.add('shaking');
+      eye.addEventListener('animationend', () => eye.classList.remove('shaking'), { once: true });
+
+      // ── Milestones ───────────────────────────────────────────────
+      if (clickCount >= 20) {
+        goBlackAndWhite();
+        return;
+      }
+
+      if (clickCount === 10) {
+        // Thunder strike
+        eye.style.background = 'radial-gradient(circle at 40% 35%, #ffff44, #ff8800)';
+        eye.style.borderColor = '#ffcc00';
+        eye.style.boxShadow = '0 0 40px rgba(255,220,0,0.9), 0 0 80px rgba(255,150,0,0.6)';
+        pupil.style.background = 'radial-gradient(circle at 35% 35%, #ff4400, #220000)';
+        strikeThunder();
+        const line = thunderLines[Math.floor(Math.random() * thunderLines.length)];
+        showDialogue(line);
+        if (angryResetTimer) clearTimeout(angryResetTimer);
+        angryResetTimer = setTimeout(() => {
+          eye.style.background = 'radial-gradient(circle at 40% 35%, #ff4444, #8b0000)';
+          eye.style.borderColor = '#ff0000';
+          eye.style.boxShadow = '0 8px 25px rgba(255,0,0,0.6), 0 4px 10px rgba(255,0,0,0.4)';
+          pupil.style.background = 'radial-gradient(circle at 35% 35%, #440000, #000000)';
+        }, 1500);
+        return;
+      }
+
+      if (clickCount === 5) {
+        // Warning
+        eye.style.background = 'radial-gradient(circle at 40% 35%, #ff8844, #aa2200)';
+        eye.style.borderColor = '#ff6600';
+        eye.style.boxShadow = '0 8px 25px rgba(255,100,0,0.7), 0 4px 10px rgba(255,80,0,0.5)';
+        pupil.style.background = 'radial-gradient(circle at 35% 35%, #660000, #000000)';
+        const line = warningLines[Math.floor(Math.random() * warningLines.length)];
+        showDialogue(line);
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+        return;
+      }
+
+      // Normal angry reaction
+      isAngry = true;
+      eye.style.background = 'radial-gradient(circle at 40% 35%, #ff4444, #8b0000)';
+      eye.style.borderColor = '#ff0000';
+      eye.style.boxShadow = '0 8px 25px rgba(255,0,0,0.6), 0 4px 10px rgba(255,0,0,0.4)';
+      pupil.style.background = 'radial-gradient(circle at 35% 35%, #440000, #000000)';
+      const line = angryLines[Math.floor(Math.random() * angryLines.length)];
+      showDialogue(line);
+
+      if (angryResetTimer) clearTimeout(angryResetTimer);
+      angryResetTimer = setTimeout(() => {
+        if (clickCount < 5) {
+          eye.style.background = 'radial-gradient(circle at 40% 35%, #ffffff, #d0d0d0)';
+          eye.style.borderColor = '#222';
+          eye.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 -4px 8px rgba(0,0,0,0.15)';
+          pupil.style.background = 'radial-gradient(circle at 35% 35%, #3a3a6a, #1a1a2e)';
+          isAngry = false;
+        }
+      }, 4500);
+    });
+
+    // ── Cursor tracking ────────────────────────────────────────────
     document.addEventListener('mousemove', (e) => {
       cursorDetected = true;
       lastCursorTime = Date.now();
@@ -800,11 +1469,10 @@
       targetY = Math.sin(angle) * maxMove;
     });
 
-    // Smooth animation loop
+    // ── Smooth animation loop ──────────────────────────────────────
     function animateEye() {
       const now = Date.now();
 
-      // If no cursor for 2 seconds, do idle movement
       if (now - lastCursorTime > 2000) {
         cursorDetected = false;
         idleAngle += 0.015;
@@ -812,105 +1480,60 @@
         targetY = Math.sin(idleAngle * 0.7) * maxMove * 0.4;
       }
 
-      // Smooth follow
       currentX += (targetX - currentX) * 0.12;
       currentY += (targetY - currentY) * 0.12;
       pupil.style.transform = `translate(${currentX}px, ${currentY}px)`;
 
-      // Eyelid follows vertical movement slightly
       const eyelidOffset = currentY * 0.4;
       eyelid.style.transform = `translateY(calc(-100% + ${eyelidOffset}px))`;
-
-      // Eye click reaction
-      eye.style.pointerEvents = 'auto';
-
-      const angryLines = [
-        "OW! Did you just poke me?! 😤",
-        "EXCUSE ME. Personal space! 😡",
-        "That was completely unnecessary. 😠",
-        "I am NOT a button! 🤬",
-        "Do that again and I'll stare at you forever. 👁️",
-        "RUDE. Absolutely rude. 😤",
-        "I have feelings you know! 💢",
-        "My optometrist warned me about people like you. 😡",
-      ];
-
-      eye.addEventListener('click', () => {
-        if (isAngry) return;
-        isAngry = true;
-
-        // Turn red and black
-        eye.style.background = 'radial-gradient(circle at 40% 35%, #ff4444, #8b0000)';
-        eye.style.borderColor = '#ff0000';
-        eye.style.boxShadow = '0 8px 25px rgba(255,0,0,0.6), 0 4px 10px rgba(255,0,0,0.4)';
-        pupil.style.background = 'radial-gradient(circle at 35% 35%, #440000, #000000)';
-
-        // Show angry dialogue
-        const line = angryLines[Math.floor(Math.random() * angryLines.length)];
-        if (bubbleTimeout) clearTimeout(bubbleTimeout);
-        if (typeTimeout) clearTimeout(typeTimeout);
-        dialogueText.textContent = '';
-        typingDots.style.display = 'inline-flex';
-        bubble.classList.add('visible');
-        typeLine(line, () => {
-          bubbleTimeout = setTimeout(hideDialogue, 3000);
-        });
-
-        // Return to normal after 4-5 seconds
-        setTimeout(() => {
-          eye.style.background = 'radial-gradient(circle at 40% 35%, #ffffff, #d0d0d0)';
-          eye.style.borderColor = '#222';
-          eye.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 -4px 8px rgba(0,0,0,0.15)';
-          pupil.style.background = 'radial-gradient(circle at 35% 35%, #3a3a6a, #1a1a2e)';
-          isAngry = false;
-        }, 4500);
-      });
-
-      // Mobile drag and close — only on touch devices
-      if ('ontouchstart' in window) {
-        const container = document.getElementById('eye-container');
-        const closeBtn = document.getElementById('close-eye-btn');
-        let dragging = false;
-        let startX, startY, origLeft, origBottom;
-
-        container.addEventListener('touchstart', (e) => {
-          if (e.target === closeBtn) return;
-          dragging = true;
-          const touch = e.touches[0];
-          startX = touch.clientX;
-          startY = touch.clientY;
-          const rect = container.getBoundingClientRect();
-          origLeft = rect.left;
-          origBottom = window.innerHeight - rect.bottom;
-          container.style.transition = 'none';
-        }, { passive: true });
-
-        document.addEventListener('touchmove', (e) => {
-          if (!dragging) return;
-          const touch = e.touches[0];
-          const dx = touch.clientX - startX;
-          const dy = touch.clientY - startY;
-          const newLeft = Math.max(0, Math.min(window.innerWidth - 80, origLeft + dx));
-          const newBottom = Math.max(0, Math.min(window.innerHeight - 80, origBottom - dy));
-          container.style.left = newLeft + 'px';
-          container.style.bottom = newBottom + 'px';
-        }, { passive: true });
-
-        document.addEventListener('touchend', () => { dragging = false; });
-
-        closeBtn.addEventListener('click', () => {
-          container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-          container.style.opacity = '0';
-          container.style.transform = 'scale(0)';
-          setTimeout(() => { container.style.display = 'none'; }, 300);
-        });
-      }
 
       requestAnimationFrame(animateEye);
     }
     animateEye();
 
-    // Blinking
+    // ── Close button (always works) ───────────────────────────────
+    const closeBtn = document.getElementById('close-eye-btn');
+    const container = document.getElementById('eye-container');
+
+    closeBtn.addEventListener('click', () => {
+      container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      container.style.opacity = '0';
+      container.style.transform = 'scale(0)';
+      setTimeout(() => { container.style.display = 'none'; }, 300);
+    });
+
+    // ── Mobile drag ────────────────────────────────────────────────
+    if ('ontouchstart' in window) {
+      let dragging = false;
+      let startX, startY, origLeft, origBottom;
+
+      container.addEventListener('touchstart', (e) => {
+        if (e.target === closeBtn) return;
+        dragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = container.getBoundingClientRect();
+        origLeft = rect.left;
+        origBottom = window.innerHeight - rect.bottom;
+        container.style.transition = 'none';
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!dragging) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        const newLeft = Math.max(0, Math.min(window.innerWidth - 80, origLeft + dx));
+        const newBottom = Math.max(0, Math.min(window.innerHeight - 80, origBottom - dy));
+        container.style.left = newLeft + 'px';
+        container.style.bottom = newBottom + 'px';
+      }, { passive: true });
+
+      document.addEventListener('touchend', () => { dragging = false; });
+    }
+
+    // ── Blinking ───────────────────────────────────────────────────
     function blink() {
       eyelid.style.transition = 'transform 0.08s ease';
       eyelid.style.transform = 'translateY(35%)';
@@ -923,9 +1546,7 @@
       const nextBlink = 2000 + Math.random() * 3000;
       setTimeout(() => {
         blink();
-        if (Math.random() < 0.2) {
-          setTimeout(blink, 250);
-        }
+        if (Math.random() < 0.2) setTimeout(blink, 250);
         scheduleNextBlink();
       }, nextBlink);
     }
