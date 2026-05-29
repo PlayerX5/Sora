@@ -1619,6 +1619,26 @@ h3 {
   box-shadow: 0 4px 14px rgba(62,160,85,0.35);
 }
 
+#pong-custom-limit {
+  display: none;
+  margin-top: 10px;
+  width: 100px;
+  text-align: center;
+  font-family: 'Dancing Script', cursive;
+  font-size: 18px;
+  padding: 6px 12px;
+  border: 2px solid color-mix(in srgb, var(--accent-color), transparent 50%);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--background-color), white 40%);
+  color: var(--default-color);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+#pong-custom-limit:focus {
+  border-color: var(--accent-color);
+}
+
 #pong-start-btn {
   margin-top: 22px;
   font-family: 'Black Chancery', cursive;

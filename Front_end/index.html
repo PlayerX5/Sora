@@ -422,8 +422,10 @@
                 <div class="pong-btn-group" id="limit-group">
                   <button class="pong-toggle active" data-val="5" onclick="pongSetLimit('5',this)">5</button>
                   <button class="pong-toggle" data-val="10" onclick="pongSetLimit('10',this)">10</button>
+                  <button class="pong-toggle" data-val="custom" onclick="pongSetLimit('custom',this)">Custom</button>
                   <button class="pong-toggle" data-val="0" onclick="pongSetLimit('0',this)">∞ Endless</button>
                 </div>
+                <input type="number" id="pong-custom-limit" min="1" max="99" value="15" placeholder="Score">
                 <button id="pong-start-btn" onclick="pongStart()">Play Now</button>
               </div>
               <!-- Score bar -->
@@ -433,7 +435,7 @@
                 <span class="pong-score-divider">—</span>
                 <span class="pong-score-num" id="pong-score-p2">0</span>
                 <span class="pong-score-label" id="pong-p2-label">AI</span>
-                <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">PAUSE</button>
+                <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">||</button>
                 <button id="pong-quit-btn" onclick="pongReset()" title="Quit">QUIT</button>
               </div>
               <!-- Canvas -->
@@ -535,7 +537,7 @@
 
       function updatePauseBtn() {
         const btn = document.getElementById('pong-pause-btn');
-        if (btn) btn.textContent = paused ? '▶' : '⏸';
+        if (btn) btn.textContent = paused ? 'PLAY' : 'PAUSE';
       }
 
       // ── Draw helpers ─────────────────────────
@@ -755,9 +757,24 @@
         btn.classList.add('active');
       };
       window.pongSetLimit = function(val, btn) {
-        pongLimit = parseInt(val);
         document.querySelectorAll('#limit-group .pong-toggle').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        const input = document.getElementById('pong-custom-limit');
+        if (val === 'custom') {
+          if (input.style.display === 'block') {
+            // second tap — collapse back to default
+            input.style.display = 'none';
+            pongLimit = 5;
+            document.querySelectorAll('#limit-group .pong-toggle').forEach(b => b.classList.remove('active'));
+            document.querySelector('#limit-group .pong-toggle[data-val="5"]').classList.add('active');
+          } else {
+            input.style.display = 'block';
+            pongLimit = parseInt(input.value) || 15;              input.oninput = () => { pongLimit = parseInt(input.value) || 15; };
+          }
+          } else {
+            pongLimit = parseInt(val);
+            input.style.display = 'none';
+          }
       };
       window.pongStart = function() {
         document.getElementById('pong-p1-label').textContent = pongMode==='ai' ? 'You' : 'P1';
