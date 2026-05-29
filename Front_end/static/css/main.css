@@ -955,7 +955,7 @@ section,
   font-size: 18px; /* Adjust font size */
 }
 
-#location, #temperature, #condition {
+#location, #temperature, #forecast {
   font-family: 'Tangerine', cursive; /* Use custom font */
   font-size: clamp(24px, 4vw, 50px); /* Adjust font size */
   font-weight: bold; /* Make the font bold */
@@ -2225,7 +2225,7 @@ label[for="numQuestions"] {
     padding: 15px;
   }
 
-  #location, #temperature, #condition {
+  #location, #temperature, #forecast {
     font-size: clamp(20px, 6vw, 35px);
     line-height: 1.8;
   }

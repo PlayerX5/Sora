@@ -190,7 +190,7 @@
           <div class="content">
             <p id="location">Location: Loading...</p>
             <p id="temperature">Temperature: Loading...</p>
-            <p id="condition">Condition: Loading...</p>
+            <p id="forecast">Forecast: Loading...</p>
           </div>
         </div>        
  
@@ -213,7 +213,7 @@
                 if (data && data.main) {
                   document.getElementById("location").textContent = `Location: Bangalore`;
                   document.getElementById("temperature").textContent = `Temperature: ${data.main.temp}°C`;
-                  document.getElementById("condition").textContent = `Condition: ${data.weather[0].description}`;
+                  document.getElementById("forecast").textContent = `Forecast: ${data.weather[0].description}`;
                 } else {
                   throw new Error("Invalid weather data received from OpenWeatherMap");
                 }
@@ -221,7 +221,7 @@
               .catch(error => {
                 console.error("Error fetching weather data:", error);
                 document.getElementById("temperature").textContent = "";
-                document.getElementById("condition").textContent = "Error fetching data.";
+                document.getElementById("forecast").textContent = "Error fetching data.";
               });
           }
 
@@ -233,7 +233,7 @@
               })
               .catch(err => {
                 console.error("Error loading config:", err);
-                document.getElementById("condition").textContent = "Error loading config.";
+                document.getElementById("forecast").textContent = "Error loading config.";
               });
           });
         </script>
@@ -392,14 +392,12 @@
             <h3>Sora Pong</h3>
             <p class="fst-italic">
               Sora Pong is a classic arcade reimagined — play against a smart AI opponent or challenge a friend
-              in local two-player mode. Choose your game mode, set a winning score limit, and battle it out on
-              the retro pixel court.
+              in local two-player mode. Choose your game mode, set a winning score limit, and battle it out.
             </p>
             <ul>
               <li><i class="bi bi-check2-all"></i> <span>Player vs AI with adaptive difficulty.</span></li>
               <li><i class="bi bi-check2-all"></i> <span>Local Player vs Player mode.</span></li>
               <li><i class="bi bi-check2-all"></i> <span>Endless or score-limit game modes.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Retro CRT pixel aesthetic.</span></li>
               <li><i class="bi bi-check2-all"></i> <span>Keyboard controls — responsive and smooth.</span></li>
             </ul>
             <p class="fst-italic">
@@ -417,6 +415,14 @@
                 <div class="pong-btn-group" id="mode-group">
                   <button class="pong-toggle active" data-val="ai" onclick="pongSetMode('ai',this)">vs AI</button>
                   <button class="pong-toggle" data-val="pvp" onclick="pongSetMode('pvp',this)">vs Player</button>
+                </div>
+                <div id="pong-difficulty-row" style="display:none;">
+                  <p class="pong-label" style="margin-top:14px;">Difficulty</p>
+                  <div class="pong-btn-group" id="difficulty-group">
+                    <button class="pong-toggle" data-val="easy" onclick="pongSetDifficulty('easy',this)">Easy</button>
+                    <button class="pong-toggle active" data-val="medium" onclick="pongSetDifficulty('medium',this)">Medium</button>
+                    <button class="pong-toggle" data-val="hard" onclick="pongSetDifficulty('hard',this)">Hard</button>
+                  </div>
                 </div>
                 <p class="pong-label" style="margin-top:14px;">Score Limit</p>
                 <div class="pong-btn-group" id="limit-group">
@@ -469,6 +475,7 @@
       // ── Settings ────────────────────────────
       let pongMode  = 'ai';
       let pongLimit = 5;
+      let pongDifficulty = 'medium'; // 'easy' | 'medium' | 'hard'
 
       // ── Game state ───────────────────────────
       let running = false, paused = false, raf = null;
@@ -635,11 +642,42 @@
 
       // ── AI ───────────────────────────────────
       function aiMove() {
-        const center = p2.y + PAD_H/2;
-        const spd    = PAD_SPEED * 0.80;
+        const center = p2.y + PAD_H / 2;
+
+        // Difficulty tuning
+        const cfg = {
+          easy:   { speedMult: 0.48, jitter: 38, deadZone: 22, predict: false },
+          medium: { speedMult: 0.80, jitter: 18, deadZone: 12, predict: true  },
+          hard:   { speedMult: 1.00, jitter:  4, deadZone:  4, predict: true  },
+        }[pongDifficulty] || { speedMult: 0.80, jitter: 18, deadZone: 12, predict: true };
+
+        const spd = PAD_SPEED * cfg.speedMult;
+
         if (ball.vx > 0) {
-          if (center < ball.y - 5) p2.y = Math.min(H-PAD_H, p2.y+spd);
-          else if (center > ball.y + 5) p2.y = Math.max(0, p2.y-spd);
+          let target = ball.y;
+
+          if (cfg.predict) {
+            // Predict landing with wall bounces
+            target = ball.y + (ball.vy * ((W - ball.x) / ball.vx));
+            while (target < 0 || target > H) {
+              if (target < 0) target = -target;
+              if (target > H) target = H - (target - H);
+            }
+            target += ball.vy * 2;
+          }
+
+          // Imperfection — more jitter on easy
+          target += Math.sin(Date.now() * 0.002) * cfg.jitter;
+
+          if (center < target - cfg.deadZone) {
+            p2.y = Math.min(H - PAD_H, p2.y + spd);
+          } else if (center > target + cfg.deadZone) {
+            p2.y = Math.max(0, p2.y - spd);
+          }
+        } else {
+          // Return to center when idle
+          if (center < H / 2 - 20) p2.y = Math.min(H - PAD_H, p2.y + spd * 0.4);
+          else if (center > H / 2 + 20) p2.y = Math.max(0, p2.y - spd * 0.4);
         }
       }
 
@@ -668,7 +706,7 @@
             ball.y+BALL_R >= p1.y && ball.y-BALL_R <= p1.y+PAD_H) {
           ball.x = p1x+PAD_W+BALL_R;
           const hitPos = (ball.y-(p1.y+PAD_H/2))/(PAD_H/2);
-          const spd    = Math.min(Math.hypot(ball.vx,ball.vy)*1.04, 11);
+          const spd    = Math.min(Math.hypot(ball.vx,ball.vy)*1.04, 15);
           ball.vx = spd*Math.cos(hitPos*0.9);
           ball.vy = spd*Math.sin(hitPos*0.9);
         }
@@ -677,7 +715,7 @@
             ball.y+BALL_R >= p2.y && ball.y-BALL_R <= p2.y+PAD_H) {
           ball.x = p2x-BALL_R;
           const hitPos = (ball.y-(p2.y+PAD_H/2))/(PAD_H/2);
-          const spd    = Math.min(Math.hypot(ball.vx,ball.vy)*1.04, 11);
+          const spd    = Math.min(Math.hypot(ball.vx,ball.vy)*1.04, 15);
           ball.vx = -spd*Math.cos(hitPos*0.9);
           ball.vy =  spd*Math.sin(hitPos*0.9);
         }
@@ -752,8 +790,24 @@
 
       // ── Public API ───────────────────────────
       window.pongSetMode = function(val, btn) {
+        const diffRow = document.getElementById('pong-difficulty-row');
+        if (val === 'ai') {
+          if (diffRow.style.display === 'block') {
+            // second tap on vs AI — collapse difficulty row
+            diffRow.style.display = 'none';
+          } else {
+            diffRow.style.display = 'block';
+          }
+        } else {
+          diffRow.style.display = 'none';
+        }
         pongMode = val;
         document.querySelectorAll('#mode-group .pong-toggle').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+      window.pongSetDifficulty = function(val, btn) {
+        pongDifficulty = val;
+        document.querySelectorAll('#difficulty-group .pong-toggle').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       };
       window.pongSetLimit = function(val, btn) {
@@ -1369,7 +1423,7 @@
 
       if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
 
-      // After 8s slowly restore everything
+      // After 18s slowly restore everything
       setTimeout(() => {
         document.documentElement.style.filter = '';
         eye.style.transform = 'scale(1)';
@@ -1384,7 +1438,7 @@
         pupil.style.background = 'radial-gradient(circle at 35% 35%, #3a3a6a, #1a1a2e)';
         isAngry = false;
         showDialogue("...I'm back. Don't make me do that again. 👁️");
-      }, 8000);
+      }, 18000);
     }
 
     // ── Eye click / press ──────────────────────────────────────────
