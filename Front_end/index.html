@@ -61,13 +61,13 @@
                 </a>
               </li>
               <li>
-                <a href="/#about_detective">
-                  <i class="bi bi-search"></i> Detective
+                <a href="/#about_pong">
+                  <i class="bi bi-joystick"></i> Pong
                 </a>
               </li>
               <li>
-                <a href="/#about_pong">
-                  <i class="bi bi-joystick"></i> Pong
+                <a href="/#about_detective">
+                  <i class="bi bi-search"></i> Detective
                 </a>
               </li>
             </ul>
@@ -382,7 +382,422 @@
   </div>
 </section>
 
-<!-- About Detective Section -->
+    <!-- About Pong Section -->
+    <section id="about_pong" class="about quiz section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4 align-items-center">
+          <!-- LEFT: About text -->
+          <div class="col-lg-6 order-2 order-lg-1 content section-title">
+            <h2>F2</h2>
+            <h3>Sora Pong</h3>
+            <p class="fst-italic">
+              Sora Pong is a classic arcade reimagined — play against a smart AI opponent or challenge a friend
+              in local two-player mode. Choose your game mode, set a winning score limit, and battle it out on
+              the retro pixel court.
+            </p>
+            <ul>
+              <li><i class="bi bi-check2-all"></i> <span>Player vs AI with adaptive difficulty.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Local Player vs Player mode.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Endless or score-limit game modes.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Retro CRT pixel aesthetic.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Keyboard controls — responsive and smooth.</span></li>
+            </ul>
+            <p class="fst-italic">
+              <strong>Controls — vs AI:</strong> ↑ / ↓ arrow keys.<br>
+              <strong>Controls — vs Player:</strong> Player 1 uses W / S &nbsp;|&nbsp; Player 2 uses ↑ / ↓.
+            </p>
+          </div>
+          <!-- RIGHT: Pong game embedded -->
+          <div class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center align-items-center">
+            <div id="pong-wrapper">
+              <!-- Game settings panel -->
+              <div id="pong-settings">
+                <p class="pong-settings-title">Choose Your Game</p>
+                <p class="pong-label">Mode</p>
+                <div class="pong-btn-group" id="mode-group">
+                  <button class="pong-toggle active" data-val="ai" onclick="pongSetMode('ai',this)">vs AI</button>
+                  <button class="pong-toggle" data-val="pvp" onclick="pongSetMode('pvp',this)">vs Player</button>
+                </div>
+                <p class="pong-label" style="margin-top:14px;">Score Limit</p>
+                <div class="pong-btn-group" id="limit-group">
+                  <button class="pong-toggle active" data-val="5" onclick="pongSetLimit('5',this)">5</button>
+                  <button class="pong-toggle" data-val="10" onclick="pongSetLimit('10',this)">10</button>
+                  <button class="pong-toggle" data-val="0" onclick="pongSetLimit('0',this)">∞ Endless</button>
+                </div>
+                <button id="pong-start-btn" onclick="pongStart()">Play Now</button>
+              </div>
+              <!-- Score bar -->
+              <div id="pong-scorebar">
+                <span class="pong-score-label" id="pong-p1-label">You</span>
+                <span class="pong-score-num" id="pong-score-p1">0</span>
+                <span class="pong-score-divider">—</span>
+                <span class="pong-score-num" id="pong-score-p2">0</span>
+                <span class="pong-score-label" id="pong-p2-label">AI</span>
+                <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">PAUSE</button>
+                <button id="pong-quit-btn" onclick="pongReset()" title="Quit">QUIT</button>
+              </div>
+              <!-- Canvas -->
+              <canvas id="pong-canvas" width="460" height="300"></canvas>
+              <!-- Controls hint -->
+              <div id="pong-controls-hint"></div>
+              <!-- Result overlay -->
+              <div id="pong-result">
+                <span id="pong-result-text"></span>
+                <button onclick="pongReset()">Play Again</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /About Pong Section -->
+
+    <script>
+    /* ─────────────────────────────────────────
+       SORA PONG — retro canvas, themed UI
+    ───────────────────────────────────────── */
+    (function () {
+      const canvas = document.getElementById('pong-canvas');
+      const ctx    = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+
+      function getCSSVar(n) {
+        return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+      }
+
+      // ── Settings ────────────────────────────
+      let pongMode  = 'ai';
+      let pongLimit = 5;
+
+      // ── Game state ───────────────────────────
+      let running = false, paused = false, raf = null;
+      let wasVisibleAndRunning = false; // scroll-away resume tracking
+
+      const PAD_W = 12, PAD_H = 64, PAD_SPEED = 4.5;
+      const BALL_R = 7;
+
+      let p1   = { y: H/2 - PAD_H/2, score: 0 };
+      let p2   = { y: H/2 - PAD_H/2, score: 0 };
+      let ball = {};
+
+      // ── Keyboard ─────────────────────────────
+      const keys = {};
+      document.addEventListener('keydown', e => {
+        keys[e.key] = true;
+        if (['ArrowUp','ArrowDown'].includes(e.key) && running && !paused) e.preventDefault();
+        if ((e.key === 'p' || e.key === 'P') && running) pongTogglePause();
+        if ((e.key === 'q' || e.key === 'Q') && running) pongReset();
+      });
+      document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+      // ── Scroll-away / back detection ─────────
+      const pongSection = document.getElementById('about_pong');
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries[0].isIntersecting;
+        if (!visible && running && !paused) {
+          // scrolled away while game running — auto-pause
+          paused = true;
+          wasVisibleAndRunning = true;
+          updatePauseBtn();
+        } else if (visible && wasVisibleAndRunning) {
+          // came back — show "tap to resume" state but don't auto-resume
+          // the pause overlay already shows; user clicks canvas or pause btn
+          wasVisibleAndRunning = false;
+        }
+      }, { threshold: 0.25 });
+      observer.observe(pongSection);
+
+      // click on canvas while paused = resume
+      canvas.addEventListener('click', () => {
+        if (running && paused) pongTogglePause();
+      });
+
+      // ── Ball ─────────────────────────────────
+      function resetBall(dir) {
+        const angle = (Math.random() * 0.5 - 0.25);
+        const spd   = 4.2;
+        ball = { x: W/2, y: H/2,
+                 vx: spd * dir * Math.cos(angle),
+                 vy: spd * Math.sin(angle) };
+      }
+
+      function pongInit() {
+        p1.y = H/2 - PAD_H/2;
+        p2.y = H/2 - PAD_H/2;
+        p1.score = 0; p2.score = 0;
+        updateScoreDOM();
+        resetBall(1);
+      }
+
+      function updateScoreDOM() {
+        document.getElementById('pong-score-p1').textContent = p1.score;
+        document.getElementById('pong-score-p2').textContent = p2.score;
+      }
+
+      function updatePauseBtn() {
+        const btn = document.getElementById('pong-pause-btn');
+        if (btn) btn.textContent = paused ? '▶' : '⏸';
+      }
+
+      // ── Draw helpers ─────────────────────────
+      function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x+r, y);
+        ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+        ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+        ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+        ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+        ctx.closePath();
+      }
+
+      // ── Retro canvas draw ────────────────────
+      function draw() {
+        const accent = getCSSVar('--accent-color') || '#3EA055';
+
+        // Dark retro BG
+        ctx.fillStyle = '#0d1117';
+        ctx.fillRect(0, 0, W, H);
+
+        // Scanline effect
+        for (let i = 0; i < H; i += 4) {
+          ctx.fillStyle = 'rgba(0,0,0,0.18)';
+          ctx.fillRect(0, i, W, 2);
+        }
+
+        // Faint grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        for (let x = 40; x < W; x += 40) {
+          ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+        }
+        for (let y = 40; y < H; y += 40) {
+          ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+        }
+
+        // Center dashed line
+        ctx.setLineDash([8, 10]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Paddle 1 — site green glow
+        ctx.fillStyle = accent;
+        ctx.shadowColor = accent;
+        ctx.shadowBlur = 18;
+        roundRect(14, p1.y, PAD_W, PAD_H, 4);
+        ctx.fill();
+
+        // Paddle 2 — site purple glow
+        ctx.fillStyle = '#af69ed';
+        ctx.shadowColor = '#af69ed';
+        ctx.shadowBlur = 18;
+        roundRect(W - 14 - PAD_W, p2.y, PAD_W, PAD_H, 4);
+        ctx.fill();
+
+        // Ball — white glow
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(255,255,255,0.9)';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+      }
+
+      function drawPauseOverlay() {
+        const accent = getCSSVar('--accent-color') || '#3EA055';
+        // solid dark overlay — no blur
+        ctx.fillStyle = 'rgba(13,17,23,0.82)';
+        ctx.fillRect(0, 0, W, H);
+        // pill
+        const pw = 240, ph = 72, px = (W-pw)/2, py = (H-ph)/2;
+        ctx.fillStyle = '#0d1117';
+        roundRect(px, py, pw, ph, 10);
+        ctx.fill();
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1.5;
+        roundRect(px, py, pw, ph, 10);
+        ctx.stroke();
+        // "Paused" — crisp, no shadow
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = accent;
+        ctx.font = '700 22px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('PAUSED', W/2, H/2 - 6);
+        // hint line
+        ctx.font = '12px monospace';
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.fillText('P  resume  •  Q  quit', W/2, H/2 + 16);
+      }
+
+      // ── AI ───────────────────────────────────
+      function aiMove() {
+        const center = p2.y + PAD_H/2;
+        const spd    = PAD_SPEED * 0.80;
+        if (ball.vx > 0) {
+          if (center < ball.y - 5) p2.y = Math.min(H-PAD_H, p2.y+spd);
+          else if (center > ball.y + 5) p2.y = Math.max(0, p2.y-spd);
+        }
+      }
+
+      // ── Update ───────────────────────────────
+      function update() {
+        if (pongMode === 'ai') {
+          if (keys['ArrowUp'])   p1.y = Math.max(0, p1.y-PAD_SPEED);
+          if (keys['ArrowDown']) p1.y = Math.min(H-PAD_H, p1.y+PAD_SPEED);
+          aiMove();
+        } else {
+          if (keys['w']||keys['W']) p1.y = Math.max(0, p1.y-PAD_SPEED);
+          if (keys['s']||keys['S']) p1.y = Math.min(H-PAD_H, p1.y+PAD_SPEED);
+          if (keys['ArrowUp'])   p2.y = Math.max(0, p2.y-PAD_SPEED);
+          if (keys['ArrowDown']) p2.y = Math.min(H-PAD_H, p2.y+PAD_SPEED);
+        }
+
+        ball.x += ball.vx; ball.y += ball.vy;
+
+        if (ball.y-BALL_R <= 0)  { ball.y = BALL_R;     ball.vy *= -1; }
+        if (ball.y+BALL_R >= H)  { ball.y = H-BALL_R;   ball.vy *= -1; }
+
+        const p1x = 14, p2x = W-14-PAD_W;
+
+        if (ball.vx < 0 &&
+            ball.x-BALL_R <= p1x+PAD_W && ball.x-BALL_R >= p1x-2 &&
+            ball.y+BALL_R >= p1.y && ball.y-BALL_R <= p1.y+PAD_H) {
+          ball.x = p1x+PAD_W+BALL_R;
+          const hitPos = (ball.y-(p1.y+PAD_H/2))/(PAD_H/2);
+          const spd    = Math.min(Math.hypot(ball.vx,ball.vy)*1.04, 11);
+          ball.vx = spd*Math.cos(hitPos*0.9);
+          ball.vy = spd*Math.sin(hitPos*0.9);
+        }
+        if (ball.vx > 0 &&
+            ball.x+BALL_R >= p2x && ball.x+BALL_R <= p2x+PAD_W+2 &&
+            ball.y+BALL_R >= p2.y && ball.y-BALL_R <= p2.y+PAD_H) {
+          ball.x = p2x-BALL_R;
+          const hitPos = (ball.y-(p2.y+PAD_H/2))/(PAD_H/2);
+          const spd    = Math.min(Math.hypot(ball.vx,ball.vy)*1.04, 11);
+          ball.vx = -spd*Math.cos(hitPos*0.9);
+          ball.vy =  spd*Math.sin(hitPos*0.9);
+        }
+
+        if (ball.x < 0)  { p2.score++; updateScoreDOM(); checkWin('p2'); resetBall(1);  }
+        if (ball.x > W)  { p1.score++; updateScoreDOM(); checkWin('p1'); resetBall(-1); }
+      }
+
+      function checkWin(scorer) {
+        if (pongLimit === 0) return;
+        const score = scorer==='p1' ? p1.score : p2.score;
+        if (score >= pongLimit) {
+          running = false; paused = false;
+          cancelAnimationFrame(raf);
+          const label = scorer==='p1'
+            ? (pongMode==='ai' ? 'You Win! 🎉' : 'Player 1 Wins! 🎉')
+            : (pongMode==='ai' ? 'AI Wins! 🤖' : 'Player 2 Wins! 🎉');
+          document.getElementById('pong-result-text').textContent = label;
+          document.getElementById('pong-result').style.display = 'flex';
+        }
+      }
+
+      // ── Loop ─────────────────────────────────
+      function loop() {
+        if (!running) return;
+        if (!paused) update();
+        draw();
+        if (paused) drawPauseOverlay();
+        raf = requestAnimationFrame(loop);
+      }
+
+      // ── Mobile touch drag ────────────────────
+      (function setupTouch() {
+        let t1StartY=null, t2StartY=null, t1PadY=null, t2PadY=null;
+        const touchSides = {}; // maps touch identifier → 'L' or 'R' (locked at touchstart)
+        function side(tx) {
+          return (tx - canvas.getBoundingClientRect().left) < canvas.getBoundingClientRect().width/2 ? 'L' : 'R';
+        }
+        canvas.addEventListener('touchstart', e => {
+          if (!running) return;
+          if (paused) { pongTogglePause(); return; }
+          e.preventDefault();
+          for (const t of e.changedTouches) {
+            const s = side(t.clientX);
+            touchSides[t.identifier] = s;
+            if (s === 'L') { t1StartY=t.clientY; t1PadY=p1.y; }
+            else           { t2StartY=t.clientY; t2PadY=p2.y; }
+          }
+        }, {passive:false});
+        canvas.addEventListener('touchmove', e => {
+          if (!running||paused) return;
+          e.preventDefault();
+          const scaleY = H / canvas.getBoundingClientRect().height;
+          for (const t of e.changedTouches) {
+            const lockedSide = touchSides[t.identifier];
+            if (lockedSide === 'L' && t1StartY !== null) {
+              p1.y = Math.max(0, Math.min(H-PAD_H, t1PadY + (t.clientY-t1StartY)*scaleY));
+            } else if (lockedSide === 'R' && t2StartY !== null && pongMode === 'pvp') {
+              p2.y = Math.max(0, Math.min(H-PAD_H, t2PadY + (t.clientY-t2StartY)*scaleY));
+            }
+          }
+        }, {passive:false});
+        canvas.addEventListener('touchend', e => {
+          for (const t of e.changedTouches) {
+            const s = touchSides[t.identifier];
+            delete touchSides[t.identifier];
+            if (s === 'L') { t1StartY=null; t1PadY=null; }
+            else           { t2StartY=null; t2PadY=null; }
+          }
+        });
+      })();
+
+      // ── Public API ───────────────────────────
+      window.pongSetMode = function(val, btn) {
+        pongMode = val;
+        document.querySelectorAll('#mode-group .pong-toggle').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+      window.pongSetLimit = function(val, btn) {
+        pongLimit = parseInt(val);
+        document.querySelectorAll('#limit-group .pong-toggle').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+      window.pongStart = function() {
+        document.getElementById('pong-p1-label').textContent = pongMode==='ai' ? 'You' : 'P1';
+        document.getElementById('pong-p2-label').textContent = pongMode==='ai' ? 'AI'  : 'P2';
+        const hint = document.getElementById('pong-controls-hint');
+        hint.textContent = pongMode==='ai'
+          ? '↑ ↓ to move  •  P to pause  •  tap canvas on mobile'
+          : 'P1: W/S  •  P2: ↑/↓  •  P to pause  •  drag on mobile';
+        hint.classList.add('visible');
+        document.getElementById('pong-settings').style.display = 'none';
+        document.getElementById('pong-result').style.display = 'none';
+        document.getElementById('pong-scorebar').classList.add('visible');
+        canvas.style.display = 'block';
+        paused = false;
+        updatePauseBtn();
+        pongInit();
+        running = true;
+        loop();
+      };
+      window.pongTogglePause = function() {
+        if (!running) return;
+        paused = !paused;
+        updatePauseBtn();
+      };
+      window.pongReset = function() {
+        running = false; paused = false;
+        cancelAnimationFrame(raf);
+        canvas.style.display = 'none';
+        document.getElementById('pong-result').style.display = 'none';
+        document.getElementById('pong-scorebar').classList.remove('visible');
+        document.getElementById('pong-controls-hint').classList.remove('visible');
+        document.getElementById('pong-settings').style.display = 'flex';
+        updatePauseBtn();
+      };
+
+      canvas.style.display = 'none';
+    })();
+    </script>
+
+    <!-- About Detective Section -->
 <section id="about_detective" class="about quiz section">
   <div class="container" data-aos="fade-up" data-aos-delay="100">
     <div class="row gy-4 align-items-center">
@@ -390,7 +805,7 @@
         <img src="static/img/aboutdetective.png" class="img-fluid" alt="">
       </div>
       <div class="col-lg-6 order-2 order-lg-1 content section-title">
-        <h2>F2</h2>
+        <h2>F3</h2>
         <h3>Sora Detective</h3>
         <p class="fst-italic">
           Sora Detective is an immersive mystery game where you take on the role of a detective solving intriguing cases. 
@@ -434,413 +849,6 @@
 </section>
 
     <!-- /Call To Action Section -->
-
-    <!-- About Pong Section -->
-    <section id="about_pong" class="about quiz section">
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-        <div class="row gy-4 align-items-center">
-          <!-- LEFT: About text -->
-          <div class="col-lg-6 order-2 order-lg-1 content section-title">
-            <h2>F3</h2>
-            <h3>Sora Pong</h3>
-            <p class="fst-italic">
-              Sora Pong is a classic arcade reimagined — play against a smart AI opponent or challenge a friend
-              in local two-player mode. Choose your game mode, set a winning score limit, and battle it out on
-              the retro pixel court.
-            </p>
-            <ul>
-              <li><i class="bi bi-check2-all"></i> <span>Player vs AI with adaptive difficulty.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Local Player vs Player mode.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Endless or score-limit game modes.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Retro CRT pixel aesthetic.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Keyboard controls — responsive and smooth.</span></li>
-            </ul>
-            <p class="fst-italic">
-              <strong>Controls — vs AI:</strong> ↑ / ↓ arrow keys.<br>
-              <strong>Controls — vs Player:</strong> Player 1 uses W / S &nbsp;|&nbsp; Player 2 uses ↑ / ↓.
-            </p>
-          </div>
-          <!-- RIGHT: Pong game embedded -->
-          <div class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center align-items-center">
-            <div id="pong-wrapper">
-              <!-- Game settings panel -->
-              <div id="pong-settings">
-                <p class="pong-settings-title">Choose Your Game</p>
-                <p class="pong-label">Mode</p>
-                <div class="pong-btn-group" id="mode-group">
-                  <button class="pong-toggle active" data-val="ai" onclick="pongSetMode('ai',this)">vs AI</button>
-                  <button class="pong-toggle" data-val="pvp" onclick="pongSetMode('pvp',this)">vs Player</button>
-                </div>
-                <p class="pong-label" style="margin-top:14px;">Score Limit</p>
-                <div class="pong-btn-group" id="limit-group">
-                  <button class="pong-toggle active" data-val="5" onclick="pongSetLimit('5',this)">5</button>
-                  <button class="pong-toggle" data-val="10" onclick="pongSetLimit('10',this)">10</button>
-                  <button class="pong-toggle" data-val="0" onclick="pongSetLimit('0',this)">∞ Endless</button>
-                </div>
-                <button id="pong-start-btn" onclick="pongStart()">Play Now</button>
-              </div>
-              <!-- Score bar -->
-              <!-- Score bar -->
-              <div id="pong-scorebar">
-                <span class="pong-score-label" id="pong-p1-label">You</span>
-                <span class="pong-score-num" id="pong-score-p1">0</span>
-                <span class="pong-score-divider">—</span>
-                <span class="pong-score-num" id="pong-score-p2">0</span>
-                <span class="pong-score-label" id="pong-p2-label">AI</span>
-                <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">⏸</button>
-              </div>
-              <!-- Canvas -->
-              <canvas id="pong-canvas" width="460" height="300"></canvas>
-              <!-- Controls hint -->
-              <div id="pong-controls-hint"></div>
-              <!-- Result overlay -->
-              <div id="pong-result">
-                <span id="pong-result-text"></span>
-                <button onclick="pongReset()">Play Again</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section><!-- /About Pong Section -->
-
-    <script>
-    /* ─────────────────────────────────────────
-       SORA PONG — themed
-    ───────────────────────────────────────── */
-    (function () {
-      const canvas  = document.getElementById('pong-canvas');
-      const ctx     = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height;
-
-      // Theme colors pulled from CSS vars (read at runtime)
-      function getCSSVar(name) {
-        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-      }
-
-      // Settings
-      let pongMode  = 'ai';
-      let pongLimit = 5;
-
-      // Game state
-      let running = false, paused = false, raf = null;
-
-      const PAD_W = 12, PAD_H = 64, PAD_SPEED = 4.5;
-      const BALL_R = 7;
-
-      let p1 = { y: H/2 - PAD_H/2, score: 0 };
-      let p2 = { y: H/2 - PAD_H/2, score: 0 };
-      let ball = {};
-
-      const keys = {};
-      document.addEventListener('keydown', e => {
-        keys[e.key] = true;
-        if (['ArrowUp','ArrowDown'].includes(e.key) && running) e.preventDefault();
-        if ((e.key === 'p' || e.key === 'P') && running) pongTogglePause();
-      });
-      document.addEventListener('keyup', e => { keys[e.key] = false; });
-
-      function resetBall(dir) {
-        const angle = (Math.random() * 0.5 - 0.25);
-        const spd = 4.2;
-        ball = {
-          x: W/2, y: H/2,
-          vx: spd * dir * Math.cos(angle),
-          vy: spd * Math.sin(angle)
-        };
-      }
-
-      function pongInit() {
-        p1.y = H/2 - PAD_H/2;
-        p2.y = H/2 - PAD_H/2;
-        p1.score = 0;
-        p2.score = 0;
-        updateScoreDOM();
-        resetBall(1);
-      }
-
-      function updateScoreDOM() {
-        document.getElementById('pong-score-p1').textContent = p1.score;
-        document.getElementById('pong-score-p2').textContent = p2.score;
-      }
-
-      function draw() {
-        const bg      = getCSSVar('--background-color') || '#98e4d9';
-        const accent  = getCSSVar('--accent-color')     || '#3EA055';
-        const surface = getCSSVar('--surface-color')    || '#ffffff';
-        const defColor = getCSSVar('--default-color')   || '#444444';
-
-        // Background — teal tint of site
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, W, H);
-
-        // Subtle grid lines
-        ctx.strokeStyle = 'rgba(255,255,255,0.22)';
-        ctx.lineWidth = 1;
-        for (let x = 40; x < W; x += 40) {
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-        }
-        for (let y = 40; y < H; y += 40) {
-          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-        }
-
-        // Center dashed divider
-        ctx.setLineDash([10, 12]);
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Paddle 1 — accent green with rounded rect
-        ctx.fillStyle = accent;
-        ctx.shadowColor = accent;
-        ctx.shadowBlur = 10;
-        roundRect(ctx, 14, p1.y, PAD_W, PAD_H, 4);
-        ctx.fill();
-
-        // Paddle 2 — purple (#af69ed) on right
-        ctx.fillStyle = '#af69ed';
-        ctx.shadowColor = '#af69ed';
-        ctx.shadowBlur = 10;
-        roundRect(ctx, W - 14 - PAD_W, p2.y, PAD_W, PAD_H, 4);
-        ctx.fill();
-
-        // Ball — white circle with glow
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(255,255,255,0.8)';
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-      }
-
-      function roundRect(ctx, x, y, w, h, r) {
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.lineTo(x + w - r, y);
-        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-        ctx.lineTo(x + w, y + h - r);
-        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-        ctx.lineTo(x + r, y + h);
-        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-        ctx.lineTo(x, y + r);
-        ctx.quadraticCurveTo(x, y, x + r, y);
-        ctx.closePath();
-      }
-
-      function aiMove() {
-        const center = p2.y + PAD_H / 2;
-        const spd = PAD_SPEED * 0.80;
-        if (ball.vx > 0) {
-          if (center < ball.y - 5) p2.y = Math.min(H - PAD_H, p2.y + spd);
-          else if (center > ball.y + 5) p2.y = Math.max(0, p2.y - spd);
-        }
-      }
-
-      function update() {
-        if (pongMode === 'ai') {
-          if (keys['ArrowUp'])   p1.y = Math.max(0, p1.y - PAD_SPEED);
-          if (keys['ArrowDown']) p1.y = Math.min(H - PAD_H, p1.y + PAD_SPEED);
-          aiMove();
-        } else {
-          if (keys['w'] || keys['W']) p1.y = Math.max(0, p1.y - PAD_SPEED);
-          if (keys['s'] || keys['S']) p1.y = Math.min(H - PAD_H, p1.y + PAD_SPEED);
-          if (keys['ArrowUp'])   p2.y = Math.max(0, p2.y - PAD_SPEED);
-          if (keys['ArrowDown']) p2.y = Math.min(H - PAD_H, p2.y + PAD_SPEED);
-        }
-
-        ball.x += ball.vx;
-        ball.y += ball.vy;
-
-        if (ball.y - BALL_R <= 0)  { ball.y = BALL_R;    ball.vy *= -1; }
-        if (ball.y + BALL_R >= H)  { ball.y = H - BALL_R; ball.vy *= -1; }
-
-        const p1x = 14, p2x = W - 14 - PAD_W;
-
-        if (ball.vx < 0 &&
-            ball.x - BALL_R <= p1x + PAD_W &&
-            ball.x - BALL_R >= p1x - 2 &&
-            ball.y + BALL_R >= p1.y && ball.y - BALL_R <= p1.y + PAD_H) {
-          ball.x = p1x + PAD_W + BALL_R;
-          const hitPos = (ball.y - (p1.y + PAD_H/2)) / (PAD_H/2);
-          const angle  = hitPos * 0.9;
-          const spd    = Math.min(Math.hypot(ball.vx, ball.vy) * 1.04, 11);
-          ball.vx =  spd * Math.cos(angle);
-          ball.vy =  spd * Math.sin(angle);
-        }
-
-        if (ball.vx > 0 &&
-            ball.x + BALL_R >= p2x &&
-            ball.x + BALL_R <= p2x + PAD_W + 2 &&
-            ball.y + BALL_R >= p2.y && ball.y - BALL_R <= p2.y + PAD_H) {
-          ball.x = p2x - BALL_R;
-          const hitPos = (ball.y - (p2.y + PAD_H/2)) / (PAD_H/2);
-          const angle  = hitPos * 0.9;
-          const spd    = Math.min(Math.hypot(ball.vx, ball.vy) * 1.04, 11);
-          ball.vx = -spd * Math.cos(angle);
-          ball.vy =  spd * Math.sin(angle);
-        }
-
-        if (ball.x < 0) {
-          p2.score++;
-          updateScoreDOM();
-          checkWin('p2');
-          resetBall(1);
-        }
-        if (ball.x > W) {
-          p1.score++;
-          updateScoreDOM();
-          checkWin('p1');
-          resetBall(-1);
-        }
-      }
-
-      function checkWin(scorer) {
-        if (pongLimit === 0) return;
-        const score = scorer === 'p1' ? p1.score : p2.score;
-        if (score >= pongLimit) {
-          running = false;
-          cancelAnimationFrame(raf);
-          const label = scorer === 'p1'
-            ? (pongMode === 'ai' ? 'You Win! 🎉' : 'Player 1 Wins! 🎉')
-            : (pongMode === 'ai' ? 'AI Wins! 🤖' : 'Player 2 Wins! 🎉');
-          document.getElementById('pong-result-text').textContent = label;
-          document.getElementById('pong-result').style.display = 'flex';
-        }
-      }
-
-      function drawPauseOverlay() {
-        const accent = getCSSVar('--accent-color') || '#3EA055';
-        ctx.fillStyle = 'rgba(255,255,255,0.55)';
-        ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = accent;
-        ctx.font = 'bold 22px "Dancing Script", cursive';
-        ctx.textAlign = 'center';
-        ctx.fillText('Paused', W/2, H/2 - 10);
-        ctx.font = '13px "Dancing Script", cursive';
-        ctx.fillStyle = '#444';
-        ctx.fillText('press P or tap ⏸ to resume', W/2, H/2 + 16);
-      }
-
-      function loop() {
-        if (!running) return;
-        if (!paused) update();
-        draw();
-        if (paused) drawPauseOverlay();
-        raf = requestAnimationFrame(loop);
-      }
-
-      window.pongSetMode = function(val, btn) {
-        pongMode = val;
-        document.querySelectorAll('#mode-group .pong-toggle').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      };
-      window.pongSetLimit = function(val, btn) {
-        pongLimit = parseInt(val);
-        document.querySelectorAll('#limit-group .pong-toggle').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      };
-      window.pongStart = function() {
-        // Update labels
-        const p1lbl = document.getElementById('pong-p1-label');
-        const p2lbl = document.getElementById('pong-p2-label');
-        if (pongMode === 'ai') {
-          p1lbl.textContent = 'You'; p2lbl.textContent = 'AI';
-        } else {
-          p1lbl.textContent = 'P1'; p2lbl.textContent = 'P2';
-        }
-        // Controls hint
-        const hint = document.getElementById('pong-controls-hint');
-        if (pongMode === 'ai') {
-          hint.textContent = '↑ ↓  Move your paddle';
-        } else {
-          hint.textContent = 'P1: W / S   •   P2: ↑ / ↓';
-        }
-        hint.classList.add('visible');
-
-        document.getElementById('pong-settings').style.display = 'none';
-        document.getElementById('pong-result').style.display = 'none';
-        document.getElementById('pong-scorebar').classList.add('visible');
-        canvas.style.display = 'block';
-        pongInit();
-        running = true;
-        loop();
-      };
-      window.pongTogglePause = function() {
-        if (!running) return;
-        paused = !paused;
-        document.getElementById('pong-pause-btn').textContent = paused ? '▶' : '⏸';
-      };
-      window.pongReset = function() {
-        running = false;
-        paused = false;
-        cancelAnimationFrame(raf);
-        canvas.style.display = 'none';
-        document.getElementById('pong-result').style.display = 'none';
-        document.getElementById('pong-scorebar').classList.remove('visible');
-        document.getElementById('pong-controls-hint').classList.remove('visible');
-        document.getElementById('pong-pause-btn').textContent = '⏸';
-        document.getElementById('pong-settings').style.display = 'flex';
-      };
-
-      // ── Mobile drag controls ───────────────────────────────────
-      (function setupTouch() {
-        let t1StartY = null, t2StartY = null;
-        let t1PadStartY = null, t2PadStartY = null;
-
-        function getTouchSide(touchX) {
-          const rect = canvas.getBoundingClientRect();
-          const relX = touchX - rect.left;
-          return relX < rect.width / 2 ? 'left' : 'right';
-        }
-
-        canvas.addEventListener('touchstart', e => {
-          if (!running || paused) return;
-          e.preventDefault();
-          for (const t of e.changedTouches) {
-            const side = getTouchSide(t.clientX);
-            if (side === 'left') {
-              t1StartY = t.clientY; t1PadStartY = p1.y;
-            } else {
-              t2StartY = t.clientY; t2PadStartY = p2.y;
-            }
-          }
-        }, { passive: false });
-
-        canvas.addEventListener('touchmove', e => {
-          if (!running || paused) return;
-          e.preventDefault();
-          for (const t of e.changedTouches) {
-            const side = getTouchSide(t.clientX);
-            const scaleY = H / canvas.getBoundingClientRect().height;
-            if (side === 'left' && t1StartY !== null) {
-              const dy = (t.clientY - t1StartY) * scaleY;
-              p1.y = Math.max(0, Math.min(H - PAD_H, t1PadStartY + dy));
-            } else if (side === 'right' && t2StartY !== null) {
-              if (pongMode === 'pvp') {
-                const dy = (t.clientY - t2StartY) * scaleY;
-                p2.y = Math.max(0, Math.min(H - PAD_H, t2PadStartY + dy));
-              }
-            }
-          }
-        }, { passive: false });
-
-        canvas.addEventListener('touchend', e => {
-          for (const t of e.changedTouches) {
-            const side = getTouchSide(t.clientX);
-            if (side === 'left') { t1StartY = null; t1PadStartY = null; }
-            else                 { t2StartY = null; t2PadStartY = null; }
-          }
-        });
-      })();
-
-      canvas.style.display = 'none';
-    })();
-    </script>
 
     <!-- Team Section -->
     <section id="team" class="team section">
