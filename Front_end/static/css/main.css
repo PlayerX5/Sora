@@ -1022,6 +1022,15 @@ section,
   }
 }
 
+  .quiz-section {
+    padding-top: 100px;
+  }
+
+  .section-header h2 {
+    font-size: 36px;
+    padding: 20px 15px 10px;
+  }
+
 /* Fun Dropdown */
 .fun-dropdown {
   position: relative;
