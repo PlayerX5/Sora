@@ -14,8 +14,9 @@ from prometheus_flask_exporter import PrometheusMetrics
 # from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__, static_folder='Front_end', static_url_path='')
-metrics = PrometheusMetrics(app)
 app.secret_key = 'your_secret_key'  # Secret key for sessions
+
+
 
 @app.route('/config')
 def config():
@@ -28,6 +29,21 @@ app.config['SESSION_TYPE'] = 'filesystem'  # Store sessions on the server's file
 CORS(app, supports_credentials=True)  # Enable CORS with credentials support
 app.config['SESSION_PERMANENT'] = False  # Sessions are not permanent
 Session(app)  # Initialize Flask-Session
+
+metrics = PrometheusMetrics(app, default_labels={'app': 'sora'})
+
+# Protect the /metrics endpoint with basic auth
+@app.route('/metrics')
+def metrics_endpoint():
+    from flask import request, Response
+    from prometheus_client import generate_latest
+
+    auth = request.authorization
+    if not auth or auth.username != os.environ.get('METRICS_USER') or \
+       auth.password != os.environ.get('METRICS_PASS'):
+        return Response('Unauthorized', 401, {'WWW-Authenticate': 'Basic realm="metrics"'})
+
+    return Response(generate_latest(), mimetype='text/plain')
  
 # Database connection function
 def get_db_connection():
