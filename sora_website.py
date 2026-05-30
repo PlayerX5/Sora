@@ -9,10 +9,12 @@ from flask_cors import CORS
 from flask import Flask, send_from_directory
 import os
 from urllib.parse import urlparse
+from prometheus_flask_exporter import PrometheusMetrics
 
 # from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__, static_folder='Front_end', static_url_path='')
+metrics = PrometheusMetrics(app)
 app.secret_key = 'your_secret_key'  # Secret key for sessions
 
 @app.route('/config')
