@@ -10,6 +10,9 @@ from flask import Flask, send_from_directory
 import os
 from urllib.parse import urlparse
 from prometheus_flask_exporter import PrometheusMetrics
+from flask import request, Response
+from prometheus_client import generate_latest
+
 
 # from flask_sqlalchemy import SQLAlchemy
 
@@ -32,18 +35,14 @@ Session(app)  # Initialize Flask-Session
 
 metrics = PrometheusMetrics(app, default_labels={'app': 'sora'})
 
-# Protect the /metrics endpoint with basic auth
+# Create your own protected /metrics route
 @app.route('/metrics')
 def metrics_endpoint():
-    from flask import request, Response
-    from prometheus_client import generate_latest
-
     auth = request.authorization
     if not auth or auth.username != os.environ.get('METRICS_USER') or \
        auth.password != os.environ.get('METRICS_PASS'):
         return Response('Unauthorized', 401, {'WWW-Authenticate': 'Basic realm="metrics"'})
-
-    return Response(generate_latest(), mimetype='text/plain')
+    return Response(generate_latest(), mimetype='text/plain; version=0.0.4')
  
 # Database connection function
 def get_db_connection():
