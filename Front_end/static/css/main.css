@@ -2480,3 +2480,154 @@ label[for="numQuestions"] {
 body.screen-shake {
   animation: screen-shake 0.5s ease;
 }
+
+/*--------------------------------------------------------------
+# Background Music Player
+--------------------------------------------------------------*/
+#music-player {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(62, 160, 85, 0.4);
+  border-radius: 40px;
+  padding: 8px 14px 8px 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: grab;
+  user-select: none;
+}
+
+#music-player.dragging {
+  cursor: grabbing;
+  transition: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+#music-player:hover {
+  border-color: rgba(62, 160, 85, 0.8);
+  box-shadow: 0 4px 24px rgba(62, 160, 85, 0.2);
+}
+
+#music-toggle {
+  background: var(--accent-color);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 0 10px rgba(62, 160, 85, 0.4);
+}
+
+#music-toggle:hover {
+  background: color-mix(in srgb, var(--accent-color), white 15%);
+  transform: scale(1.1);
+}
+
+#music-icon {
+  font-size: 0; /* hide the unicode character's own spacing */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Draw the ♪ note as text, ■ stop as a CSS square */
+#music-icon::before {
+  content: attr(data-icon);
+  font-size: 18px;
+  line-height: 1;
+  display: block;
+}
+
+#music-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+#music-label {
+  font-family: 'Dancing Script', cursive;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+#music-volume {
+  width: 100%;
+  min-width: 60px;
+  max-width: 120px;
+  height: 4px;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+  border: none;
+  box-shadow: none;
+}
+
+#music-volume::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(62, 160, 85, 0.6);
+}
+
+#music-volume::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  cursor: pointer;
+  border: none;
+}
+
+@keyframes music-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(62, 160, 85, 0.4); }
+  50%       { box-shadow: 0 0 20px rgba(62, 160, 85, 0.75); }
+}
+
+#music-toggle.playing {
+  animation: music-pulse 2s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  #music-player {
+    bottom: 70px;
+    right: 15px;
+    padding: 8px 10px 8px 8px;
+  }
+  #music-controls {
+    display: none;
+  }
+  #music-player:hover #music-controls,
+  #music-player:focus-within #music-controls {
+    display: flex;
+  }
+  #eye-container {
+    bottom: 30px;
+    left: 15px;
+  }
+}

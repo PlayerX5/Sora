@@ -1633,6 +1633,157 @@
     scheduleNextBlink();
   </script>
 
+  <!-- Background Music Player -->
+  <div id="music-player">
+    <button id="music-toggle" title="Play / Pause music">
+      <span id="music-icon" data-icon="♪"></span>
+    </button>
+    <div id="music-controls">
+      <span id="music-label">Best Friend, Krynoze</span>
+      <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.25">
+    </div>
+    <audio id="bg-music" loop preload="auto">
+      <source src="static/music/background.weba" type="audio/webm">
+      <!-- <source src="static/music/background.mp4" type="audio/mp4"> -->
+    </audio>
+  </div>
+
+  <script>
+  (function() {
+    const audio        = document.getElementById('bg-music');
+    const toggle       = document.getElementById('music-toggle');
+    const icon         = document.getElementById('music-icon');
+    const volumeSlider = document.getElementById('music-volume');
+
+    audio.volume = 0.25;
+
+    function setPlaying(state) {
+      if (state) {
+        icon.setAttribute('data-icon', '♪');
+        toggle.classList.add('playing');
+        toggle.title = 'Pause music';
+      } else {
+        icon.setAttribute('data-icon', '♪');
+        toggle.classList.remove('playing');
+        toggle.title = 'Play music';
+      }
+    }
+
+    // Toggle play/pause on button click
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (audio.paused) {
+        audio.play().then(() => setPlaying(true)).catch(err => console.warn('Music play failed:', err));
+      } else {
+        audio.pause();
+        setPlaying(false);
+      }
+    });
+
+    // Volume slider
+    volumeSlider.addEventListener('input', () => {
+      audio.volume = parseFloat(volumeSlider.value);
+    });
+
+    // Autoplay on first user interaction with the PAGE (not the button)
+    // Uses capture:true so it fires before other handlers, then removes itself
+    let autoplayDone = false;
+    function tryAutoplay(e) {
+      if (autoplayDone) return;
+      // Don't double-trigger if user clicked the toggle button itself
+      if (e.target === toggle || toggle.contains(e.target)) return;
+      autoplayDone = true;
+      document.removeEventListener('click',   tryAutoplay, true);
+      document.removeEventListener('keydown', tryAutoplay, true);
+      document.removeEventListener('scroll',  tryAutoplay, true);
+      audio.play()
+        .then(() => setPlaying(true))
+        .catch(err => console.warn('Autoplay blocked:', err));
+    }
+
+    document.addEventListener('click',   tryAutoplay, true);
+    document.addEventListener('keydown', tryAutoplay, true);
+    document.addEventListener('scroll',  tryAutoplay, true);
+
+    // Sync icon if audio ends or is paused externally
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('play',  () => setPlaying(true));
+
+    // ── Drag to reposition ────────────────────────────────────────
+    const player = document.getElementById('music-player');
+    let dragActive = false, dragStartX, dragStartY, dragOrigLeft, dragOrigTop;
+
+    function initDragPos() {
+      // Convert bottom/right to top/left so dragging works cleanly
+      const rect = player.getBoundingClientRect();
+      player.style.right  = 'auto';
+      player.style.bottom = 'auto';
+      player.style.left   = rect.left + 'px';
+      player.style.top    = rect.top  + 'px';
+    }
+
+    player.addEventListener('mousedown', (e) => {
+      if (e.target === toggle || toggle.contains(e.target)) return;
+      if (e.target === volumeSlider) return;
+      if (!player.style.left) initDragPos();
+      dragActive = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragOrigLeft = parseFloat(player.style.left);
+      dragOrigTop  = parseFloat(player.style.top);
+      player.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragActive) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      const newLeft = Math.max(0, Math.min(window.innerWidth  - player.offsetWidth,  dragOrigLeft + dx));
+      const newTop  = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, dragOrigTop  + dy));
+      player.style.left = newLeft + 'px';
+      player.style.top  = newTop  + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragActive) return;
+      dragActive = false;
+      player.classList.remove('dragging');
+    });
+
+    // Touch drag
+    player.addEventListener('touchstart', (e) => {
+      if (e.target === toggle || toggle.contains(e.target)) return;
+      if (e.target === volumeSlider) return;
+      if (!player.style.left) initDragPos();
+      const t = e.touches[0];
+      dragActive = true;
+      dragStartX = t.clientX;
+      dragStartY = t.clientY;
+      dragOrigLeft = parseFloat(player.style.left);
+      dragOrigTop  = parseFloat(player.style.top);
+      player.classList.add('dragging');
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!dragActive) return;
+      const t = e.touches[0];
+      const dx = t.clientX - dragStartX;
+      const dy = t.clientY - dragStartY;
+      const newLeft = Math.max(0, Math.min(window.innerWidth  - player.offsetWidth,  dragOrigLeft + dx));
+      const newTop  = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, dragOrigTop  + dy));
+      player.style.left = newLeft + 'px';
+      player.style.top  = newTop  + 'px';
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      if (!dragActive) return;
+      dragActive = false;
+      player.classList.remove('dragging');
+    });
+  })();
+  </script>
+
   <!-- Vendor JS Files -->
   <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="static/vendor/php-email-form/validate.js"></script>
