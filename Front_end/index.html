@@ -66,8 +66,8 @@
                 </a>
               </li>
               <li>
-                <a href="/#about_pong">
-                  <i class="bi bi-joystick"></i> Pong
+                <a href="/#about_arcade">
+                  <i class="bi bi-joystick"></i> Arcade
                 </a>
               </li>
               <li>
@@ -566,82 +566,144 @@
   </div>
 </section>
 
-    <!-- About Pong Section -->
-    <section id="about_pong" class="about quiz section">
+    <!-- Arcade Section -->
+    <section id="about_arcade" class="about quiz section">
       <div class="container" data-aos="fade-up" data-aos-delay="100">
         <div class="row gy-4 align-items-center">
           <!-- LEFT: About text -->
           <div class="col-lg-6 order-2 order-lg-1 content section-title">
             <h2>F2</h2>
-            <h3>Sora Pong</h3>
-            <p class="fst-italic">
-              Sora Pong is a classic arcade reimagined — play against a smart AI opponent or challenge a friend
-              in local two-player mode. Choose your game mode, set a winning score limit, and battle it out.
-            </p>
-            <ul>
-              <li><i class="bi bi-check2-all"></i> <span>Player vs AI with adaptive difficulty.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Local Player vs Player mode.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Endless or score-limit game modes.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Keyboard controls — responsive and smooth.</span></li>
-            </ul>
-            <p class="fst-italic">
-              <strong>Controls — vs AI:</strong> ↑ / ↓ arrow keys.<br>
-              <strong>Controls — vs Player:</strong> Player 1 uses W / S &nbsp;|&nbsp; Player 2 uses ↑ / ↓.
-            </p>
+            <h3 id="arcade-game-title">Sora Pong</h3>
+            <div id="arcade-about-pong">
+              <p class="fst-italic">
+                Sora Pong is a classic arcade reimagined — play against a smart AI opponent or challenge a friend
+                in local two-player mode. Choose your game mode, set a winning score limit, and battle it out.
+              </p>
+              <ul>
+                <li><i class="bi bi-check2-all"></i> <span>Player vs AI with adaptive difficulty.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>Local Player vs Player mode.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>Endless or score-limit game modes.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>Keyboard controls — responsive and smooth.</span></li>
+              </ul>
+              <p class="fst-italic">
+                <strong>Controls — vs AI:</strong> ↑ / ↓ arrow keys.<br>
+                <strong>Controls — vs Player:</strong> Player 1 uses W / S &nbsp;|&nbsp; Player 2 uses ↑ / ↓.
+              </p>
+            </div>
           </div>
-          <!-- RIGHT: Pong game embedded -->
-          <div class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center align-items-center">
-            <div id="pong-wrapper">
-              <!-- Game settings panel -->
-              <div id="pong-settings">
-                <p class="pong-settings-title">Choose Your Game</p>
-                <p class="pong-label">Mode</p>
-                <div class="pong-btn-group" id="mode-group">
-                  <button class="pong-toggle active" data-val="ai" onclick="pongSetMode('ai',this)">vs AI</button>
-                  <button class="pong-toggle" data-val="pvp" onclick="pongSetMode('pvp',this)">vs Player</button>
-                </div>
-                <div id="pong-difficulty-row" style="display:none;">
-                  <p class="pong-label" style="margin-top:14px;">Difficulty</p>
-                  <div class="pong-btn-group" id="difficulty-group">
-                    <button class="pong-toggle" data-val="easy" onclick="pongSetDifficulty('easy',this)">Easy</button>
-                    <button class="pong-toggle active" data-val="medium" onclick="pongSetDifficulty('medium',this)">Medium</button>
-                    <button class="pong-toggle" data-val="hard" onclick="pongSetDifficulty('hard',this)">Hard</button>
+          <!-- RIGHT: Arcade carousel -->
+          <div class="col-lg-6 order-1 order-lg-2 d-flex flex-column justify-content-center align-items-center">
+
+            <div class="arcade-carousel">
+
+              <!-- Left arrow -->
+              <button class="arcade-arrow arcade-arrow-left" onclick="arcadeNav(-1)" title="Previous game">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+
+              <!-- Game slot -->
+              <div class="arcade-slot">
+                <!-- GAME 0: Pong -->
+                <div class="arcade-game active" data-game="0">
+                  <div id="pong-wrapper">
+                    <div id="pong-settings">
+                      <p class="pong-settings-title">Choose Your Game</p>
+                      <p class="pong-label">Mode</p>
+                      <div class="pong-btn-group" id="mode-group">
+                        <button class="pong-toggle active" data-val="ai" onclick="pongSetMode('ai',this)">vs AI</button>
+                        <button class="pong-toggle" data-val="pvp" onclick="pongSetMode('pvp',this)">vs Player</button>
+                      </div>
+                      <div id="pong-difficulty-row" style="display:none;">
+                        <p class="pong-label" style="margin-top:14px;">Difficulty</p>
+                        <div class="pong-btn-group" id="difficulty-group">
+                          <button class="pong-toggle" data-val="easy" onclick="pongSetDifficulty('easy',this)">Easy</button>
+                          <button class="pong-toggle active" data-val="medium" onclick="pongSetDifficulty('medium',this)">Medium</button>
+                          <button class="pong-toggle" data-val="hard" onclick="pongSetDifficulty('hard',this)">Hard</button>
+                        </div>
+                      </div>
+                      <p class="pong-label" style="margin-top:14px;">Score Limit</p>
+                      <div class="pong-btn-group" id="limit-group">
+                        <button class="pong-toggle active" data-val="5" onclick="pongSetLimit('5',this)">5</button>
+                        <button class="pong-toggle" data-val="10" onclick="pongSetLimit('10',this)">10</button>
+                        <button class="pong-toggle" data-val="custom" onclick="pongSetLimit('custom',this)">Custom</button>
+                        <button class="pong-toggle" data-val="0" onclick="pongSetLimit('0',this)">∞ Endless</button>
+                      </div>
+                      <input type="number" id="pong-custom-limit" min="1" max="99" value="15" placeholder="Score">
+                      <button id="pong-start-btn" onclick="pongStart()">Play Now</button>
+                    </div>
+                    <div id="pong-scorebar">
+                      <span class="pong-score-label" id="pong-p1-label">You</span>
+                      <span class="pong-score-num" id="pong-score-p1">0</span>
+                      <span class="pong-score-divider">—</span>
+                      <span class="pong-score-num" id="pong-score-p2">0</span>
+                      <span class="pong-score-label" id="pong-p2-label">AI</span>
+                      <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">||</button>
+                      <button id="pong-quit-btn" onclick="pongReset()" title="Quit">QUIT</button>
+                    </div>
+                    <canvas id="pong-canvas" width="460" height="300" style="display:none;"></canvas>
+                    <div id="pong-controls-hint"></div>
+                    <div id="pong-result">
+                      <span id="pong-result-text"></span>
+                      <button onclick="pongReset()">Play Again</button>
+                    </div>
                   </div>
                 </div>
-                <p class="pong-label" style="margin-top:14px;">Score Limit</p>
-                <div class="pong-btn-group" id="limit-group">
-                  <button class="pong-toggle active" data-val="5" onclick="pongSetLimit('5',this)">5</button>
-                  <button class="pong-toggle" data-val="10" onclick="pongSetLimit('10',this)">10</button>
-                  <button class="pong-toggle" data-val="custom" onclick="pongSetLimit('custom',this)">Custom</button>
-                  <button class="pong-toggle" data-val="0" onclick="pongSetLimit('0',this)">∞ Endless</button>
-                </div>
-                <input type="number" id="pong-custom-limit" min="1" max="99" value="15" placeholder="Score">
-                <button id="pong-start-btn" onclick="pongStart()">Play Now</button>
+                <!-- Future games go here as additional .arcade-game divs -->
               </div>
-              <!-- Score bar -->
-              <div id="pong-scorebar">
-                <span class="pong-score-label" id="pong-p1-label">You</span>
-                <span class="pong-score-num" id="pong-score-p1">0</span>
-                <span class="pong-score-divider">—</span>
-                <span class="pong-score-num" id="pong-score-p2">0</span>
-                <span class="pong-score-label" id="pong-p2-label">AI</span>
-                <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">||</button>
-                <button id="pong-quit-btn" onclick="pongReset()" title="Quit">QUIT</button>
-              </div>
-              <!-- Canvas -->
-              <canvas id="pong-canvas" width="460" height="300"></canvas>
-              <!-- Controls hint -->
-              <div id="pong-controls-hint"></div>
-              <!-- Result overlay -->
-              <div id="pong-result">
-                <span id="pong-result-text"></span>
-                <button onclick="pongReset()">Play Again</button>
-              </div>
+
+              <!-- Right arrow -->
+              <button class="arcade-arrow arcade-arrow-right" onclick="arcadeNav(1)" title="Next game">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+
             </div>
+
+            <!-- Dot indicators — below the carousel row -->
+            <div class="arcade-dots" id="arcade-dots">
+              <span class="arcade-dot active" data-index="0"></span>
+            </div>
+
           </div>
         </div>
       </div>
-    </section><!-- /About Section -->
+    </section><!-- /Arcade Section -->
+
+    <script>
+    // ── Arcade carousel ───────────────────────────────────────────
+    (function () {
+      const games = document.querySelectorAll('.arcade-game');
+      const dots  = document.querySelectorAll('.arcade-dot');
+      const titleEl = document.getElementById('arcade-game-title');
+
+      // Add more titles here as you add games
+      const gameTitles = ['Sora Pong'];
+      // Add more about-panel IDs here as you add games
+      const aboutPanels = ['arcade-about-pong'];
+
+      let current = 0;
+
+      function show(index) {
+        // Quit pong if leaving it
+        if (current === 0 && index !== 0 && typeof pongReset === 'function') {
+          pongReset();
+        }
+
+        games.forEach((g, i) => g.classList.toggle('active', i === index));
+        dots.forEach((d, i)  => d.classList.toggle('active', i === index));
+        aboutPanels.forEach((id, i) => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = i === index ? '' : 'none';
+        });
+        if (titleEl) titleEl.textContent = gameTitles[index] || '';
+        current = index;
+      }
+
+      window.arcadeNav = function (dir) {
+        const next = (current + dir + games.length) % games.length;
+        show(next);
+      };
+    })();
+    </script>
 
     <script src="static/js/pong.js"></script>
 

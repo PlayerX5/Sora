@@ -37,7 +37,7 @@
   document.addEventListener('keyup', e => { keys[e.key] = false; });
 
   // ── Scroll-away / back detection ─────────
-  const pongSection = document.getElementById('about_pong');
+  const pongSection = document.getElementById('about_arcade');
   const observer = new IntersectionObserver(entries => {
     const visible = entries[0].isIntersecting;
     if (!visible && running && !paused) {
