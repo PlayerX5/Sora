@@ -2840,7 +2840,7 @@ body.screen-shake {
 --------------------------------------------------------------*/
 .arcade-carousel {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 12px;
@@ -2909,6 +2909,7 @@ body.screen-shake {
 @media (max-width: 991px) {
   .arcade-carousel {
     gap: 6px;
+    flex-direction: column;
   }
 
   .arcade-arrow {
