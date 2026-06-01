@@ -1581,36 +1581,70 @@
       setTimeout(() => { container.style.display = 'none'; }, 300);
     });
 
-    // ── Mobile drag ────────────────────────────────────────────────
-    if ('ontouchstart' in window) {
-      let dragging = false;
-      let startX, startY, origLeft, origBottom;
+    // ── Drag (mouse + touch, desktop + mobile) ────────────────────
+    let dragActive = false, dragStartX, dragStartY, dragOrigLeft, dragOrigTop;
 
-      container.addEventListener('touchstart', (e) => {
-        if (e.target === closeBtn) return;
-        dragging = true;
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        const rect = container.getBoundingClientRect();
-        origLeft = rect.left;
-        origBottom = window.innerHeight - rect.bottom;
-        container.style.transition = 'none';
-      }, { passive: true });
-
-      document.addEventListener('touchmove', (e) => {
-        if (!dragging) return;
-        const touch = e.touches[0];
-        const dx = touch.clientX - startX;
-        const dy = touch.clientY - startY;
-        const newLeft = Math.max(0, Math.min(window.innerWidth - 80, origLeft + dx));
-        const newBottom = Math.max(0, Math.min(window.innerHeight - 80, origBottom - dy));
-        container.style.left = newLeft + 'px';
-        container.style.bottom = newBottom + 'px';
-      }, { passive: true });
-
-      document.addEventListener('touchend', () => { dragging = false; });
+    function initEyeDragPos() {
+      const rect = container.getBoundingClientRect();
+      container.style.bottom = 'auto';
+      container.style.left   = rect.left + 'px';
+      container.style.top    = rect.top  + 'px';
     }
+
+    container.addEventListener('mousedown', (e) => {
+      if (e.target === closeBtn) return;
+      if (!container.style.top) initEyeDragPos();
+      dragActive = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragOrigLeft = parseFloat(container.style.left);
+      dragOrigTop  = parseFloat(container.style.top);
+      container.style.transition = 'none';
+      container.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragActive) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      const newLeft = Math.max(0, Math.min(window.innerWidth  - container.offsetWidth,  dragOrigLeft + dx));
+      const newTop  = Math.max(0, Math.min(window.innerHeight - container.offsetHeight, dragOrigTop  + dy));
+      container.style.left = newLeft + 'px';
+      container.style.top  = newTop  + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragActive) return;
+      dragActive = false;
+      container.style.cursor = '';
+    });
+
+    // Touch drag
+    container.addEventListener('touchstart', (e) => {
+      if (e.target === closeBtn) return;
+      if (!container.style.top) initEyeDragPos();
+      const t = e.touches[0];
+      dragActive = true;
+      dragStartX = t.clientX;
+      dragStartY = t.clientY;
+      dragOrigLeft = parseFloat(container.style.left);
+      dragOrigTop  = parseFloat(container.style.top);
+      container.style.transition = 'none';
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!dragActive) return;
+      const t = e.touches[0];
+      const dx = t.clientX - dragStartX;
+      const dy = t.clientY - dragStartY;
+      const newLeft = Math.max(0, Math.min(window.innerWidth  - container.offsetWidth,  dragOrigLeft + dx));
+      const newTop  = Math.max(0, Math.min(window.innerHeight - container.offsetHeight, dragOrigTop  + dy));
+      container.style.left = newLeft + 'px';
+      container.style.top  = newTop  + 'px';
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => { dragActive = false; });
 
     // ── Blinking ───────────────────────────────────────────────────
     function blink() {
@@ -1708,6 +1742,22 @@
     // Sync icon if audio ends or is paused externally
     audio.addEventListener('pause', () => setPlaying(false));
     audio.addEventListener('play',  () => setPlaying(true));
+
+    // ── Pause on tab switch, resume on return ─────────────────────
+    let pausedByVisibility = false;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (!audio.paused) {
+          audio.pause();
+          pausedByVisibility = true;
+        }
+      } else {
+        if (pausedByVisibility) {
+          audio.play().catch(() => {});
+          pausedByVisibility = false;
+        }
+      }
+    });
 
     // ── Drag to reposition ────────────────────────────────────────
     const player = document.getElementById('music-player');
