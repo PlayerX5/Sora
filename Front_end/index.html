@@ -56,6 +56,11 @@
             <a href="#"><span>Fun</span> <i class="bi bi-chevron-down"></i></a>
             <ul class="fun-submenu">
               <li>
+                <a href="/#instagram">
+                  <i class="bi bi-instagram"></i> Gallery
+                </a>
+              </li>
+              <li>
                 <a href="/#about_quiz">
                   <i class="bi bi-controller"></i> Quiz
                 </a>
@@ -271,6 +276,185 @@
       </div>
 
     </section><!-- /About Section -->
+
+    <!-- Instagram Intro Section -->
+    <section id="instagram" class="instagram-intro section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4 align-items-center">
+
+          <!-- Left: Text -->
+          <div class="col-lg-6 order-2 order-lg-1 content section-title">
+            <h2>Gallery</h2>
+            <h3>Dreaming._.Green</h3>
+            <p class="fst-italic">
+              A visual diary of moments, nature, and quiet beauty. Follow along for a glimpse into the world through my lens.
+            </p>
+            <ul>
+              <li><i class="bi bi-check2-all"></i> <span>Photography</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Nature, streets, and everyday moments.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>And more.</span></li>
+            </ul>
+            <a href="https://www.instagram.com/dreaming._.green" target="_blank" rel="noopener noreferrer" class="btn-instagram mt-3">
+              <i class="bi bi-instagram"></i> Open Instagram
+            </a>
+          </div>
+
+          <!-- Right: Feature image -->
+          <div class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center" data-aos="fade-left" data-aos-delay="200">
+            <div class="insta-frame">
+              <!-- Replace the src below with your best Instagram photo -->
+              <img src="static/img/aboutquiz.png" alt="dreaming._.green — featured photo">
+              <div class="insta-handle">
+                <i class="bi bi-instagram"></i>
+                <span>@dreaming._.green</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section><!-- /Instagram Intro Section -->
+
+    <!-- Instagram Photo Reel -->
+    <section id="instagram-reel" class="instagram-reel-section">
+      <div class="reel-track-wrapper">
+        <div class="reel-track">
+          <!--
+            Replace these src values with your actual Instagram photo paths.
+            e.g. src="static/img/instagram/photo1.jpg"
+            The set is duplicated below for a seamless infinite loop — update both copies.
+          -->
+          <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/about.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/features-bg.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/aboutquiz.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/weather.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/aboutdetective.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/about.png" alt=""></div>
+          <!-- Duplicate set for seamless loop -->
+          <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/about.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/features-bg.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/aboutquiz.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/weather.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/aboutdetective.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/about.png" alt=""></div>
+        </div>
+      </div>
+
+      <div class="reel-footer text-center">
+        <a href="https://www.instagram.com/dreaming._.green" target="_blank" rel="noopener noreferrer" class="btn-view-all">
+          <i class="bi bi-grid-3x3-gap"></i>&nbsp; View All Photos
+        </a>
+      </div>
+    </section><!-- /Instagram Photo Reel -->
+
+    <script>
+    (function () {
+      const track   = document.querySelector('.reel-track');
+      const wrapper = document.querySelector('.reel-track-wrapper');
+
+      // ── Kill the CSS animation immediately — JS owns all movement ──
+      track.style.animation = 'none';
+
+      let posX      = 0;       // current translate value (px, always negative)
+      let velX      = 0;       // pixels per frame for auto-scroll / momentum
+      let isDragging = false;
+      let dragStartX = 0;
+      let dragStartPos = 0;
+      let lastDragX  = 0;
+      let lastDragTime = 0;
+      let dragVel    = 0;
+
+      const AUTO_SPEED = 0.6;  // px per frame when idle (tweak to taste)
+
+      function halfWidth() {
+        return track.scrollWidth / 2;
+      }
+
+      function wrap(x) {
+        const hw = halfWidth();
+        // keep x in range (-hw, 0]
+        x = x % hw;
+        if (x > 0) x -= hw;
+        return x;
+      }
+
+      function render() {
+        track.style.transform = `translateX(${posX}px)`;
+      }
+
+      // ── Main loop ─────────────────────────────
+      function tick() {
+        if (!isDragging) {
+          // auto-scroll leftward + coast after drag
+          velX += ((-AUTO_SPEED) - velX) * 0.04; // smoothly settle to auto speed
+          posX = wrap(posX + velX);
+        }
+        render();
+        requestAnimationFrame(tick);
+      }
+      tick();
+
+      // ── Mouse ─────────────────────────────────
+      wrapper.addEventListener('mousedown', (e) => {
+        isDragging   = true;
+        dragStartX   = e.pageX;
+        dragStartPos = posX;
+        dragVel      = 0;
+        lastDragX    = e.pageX;
+        lastDragTime = performance.now();
+        wrapper.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const now = performance.now();
+        const dt  = now - lastDragTime || 1;
+        dragVel   = (e.pageX - lastDragX) / dt;   // px/ms
+        lastDragX   = e.pageX;
+        lastDragTime = now;
+        posX = wrap(dragStartPos + (e.pageX - dragStartX));
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        wrapper.style.cursor = '';
+        // hand velocity to the loop (convert px/ms → px/frame @60fps)
+        velX = dragVel * 16;
+      });
+
+      // ── Touch ─────────────────────────────────
+      wrapper.addEventListener('touchstart', (e) => {
+        isDragging   = true;
+        dragStartX   = e.touches[0].pageX;
+        dragStartPos = posX;
+        dragVel      = 0;
+        lastDragX    = e.touches[0].pageX;
+        lastDragTime = performance.now();
+      }, { passive: true });
+
+      wrapper.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const now = performance.now();
+        const dt  = now - lastDragTime || 1;
+        dragVel   = (e.touches[0].pageX - lastDragX) / dt;
+        lastDragX    = e.touches[0].pageX;
+        lastDragTime = now;
+        posX = wrap(dragStartPos + (e.touches[0].pageX - dragStartX));
+      }, { passive: true });
+
+      wrapper.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        velX = dragVel * 16;
+      });
+    })();
+    </script>
 
     <!-- Features Section -->
     <section id="features" class="features section">

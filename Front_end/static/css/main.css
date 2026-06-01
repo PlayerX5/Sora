@@ -2632,3 +2632,195 @@ body.screen-shake {
     left: 15px;
   }
 }
+/*--------------------------------------------------------------
+# Instagram Intro Section
+--------------------------------------------------------------*/
+.instagram-intro .content h3 {
+  font-size: clamp(36px, 6vw, 75px);
+  font-weight: 700;
+  color: #354410;
+}
+
+.instagram-intro .content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.instagram-intro .content ul li {
+  padding: 10px 0 0 0;
+  display: flex;
+}
+
+.instagram-intro .content ul i {
+  color: var(--accent-color);
+  margin-right: 0.5rem;
+  line-height: 1.2;
+  font-size: 1.25rem;
+}
+
+.btn-instagram {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Black Chancery', cursive;
+  font-size: 18px;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #fff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  text-decoration: none;
+  transition: opacity 0.3s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 18px rgba(188,24,136,0.25);
+}
+
+.btn-instagram i {
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.btn-instagram:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(188,24,136,0.38);
+  color: #fff !important;
+}
+
+.insta-frame {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 56px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.10);
+  border: 3px solid rgba(255,255,255,0.22);
+}
+
+.insta-frame img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.insta-frame:hover img {
+  transform: scale(1.04);
+}
+
+.insta-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.68));
+  color: #fff;
+  padding: 28px 16px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Dancing Script', cursive;
+  font-size: 21px;
+  letter-spacing: 0.5px;
+}
+
+.insta-handle i {
+  font-size: 20px;
+}
+
+/*--------------------------------------------------------------
+# Instagram Photo Reel
+--------------------------------------------------------------*/
+.instagram-reel-section {
+  background-color: var(--background-color);
+  padding: 10px 0 54px 0;
+  overflow: hidden;
+}
+
+.reel-track-wrapper {
+  overflow: hidden;
+  width: 100%;
+  padding: 16px 0 20px;
+  cursor: grab;
+  /* Soft fade on both edges */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+}
+
+.reel-track-wrapper:active {
+  cursor: grabbing;
+}
+
+.reel-track {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: reelScroll 50s linear infinite;
+}
+
+.reel-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes reelScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.reel-item {
+  width: 210px;
+  height: 210px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+}
+
+.reel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.reel-item:hover img {
+  transform: scale(1.08);
+}
+
+.reel-footer {
+  padding: 10px 20px 0;
+}
+
+.btn-view-all {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Black Chancery', cursive;
+  font-size: 18px;
+  background: transparent;
+  color: var(--heading-color) !important;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 10px 30px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-view-all:hover {
+  background: var(--accent-color);
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(62,160,85,0.35);
+}
+
+@media (max-width: 768px) {
+  .insta-frame {
+    max-width: 280px;
+  }
+  .reel-item {
+    width: 160px;
+    height: 160px;
+  }
+}
