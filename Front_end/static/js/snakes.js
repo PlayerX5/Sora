@@ -46,9 +46,10 @@
   canvas.addEventListener('touchstart', e => {
     if (!running) return;
     if (paused) { snakesTogglePause(); return; }
+    e.preventDefault();
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
-  }, { passive: true });
+  }, { passive: false });
 
   canvas.addEventListener('touchend', e => {
     if (!running || touchStartX === null) return;
