@@ -590,6 +590,35 @@
                 <strong>Controls — vs Player:</strong> Player 1 uses W / S &nbsp;|&nbsp; Player 2 uses ↑ / ↓.
               </p>
             </div>
+            <div id="arcade-about-bricks" style="display:none;">
+              <p class="fst-italic">
+                Sora Bricks is a classic Breakout-style game — smash all the bricks using your paddle and ball before you run out of lives. Three difficulty levels keep things spicy.
+              </p>
+              <ul>
+                <li><i class="bi bi-check2-all"></i> <span>Three difficulty levels: Easy, Medium, Hard.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>Colourful layered bricks, each row worth more points.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>Ball speeds up as you clear more bricks.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>3 lives — don't let the ball past your paddle!</span></li>
+              </ul>
+              <p class="fst-italic">
+                <strong>Controls:</strong> ← / → arrow keys or drag on mobile.
+              </p>
+            </div>
+            <div id="arcade-about-snakes" style="display:none;">
+              <p class="fst-italic">
+                Sora Snakes is the timeless classic reimagined — guide your snake around the grid,
+                eat the food, grow longer, and don't crash into the walls or yourself!
+              </p>
+              <ul>
+                <li><i class="bi bi-check2-all"></i> <span>Three difficulty levels: Easy, Medium, Hard.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>Snake speeds up as your score climbs.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>Retro canvas visuals with glowing effects.</span></li>
+                <li><i class="bi bi-check2-all"></i> <span>10 pts per food — how high can you go?</span></li>
+              </ul>
+              <p class="fst-italic">
+                <strong>Controls:</strong> Arrow keys or WASD &nbsp;|&nbsp; Swipe on mobile.
+              </p>
+            </div>
           </div>
           <!-- RIGHT: Arcade carousel -->
           <div class="col-lg-6 order-1 order-lg-2 d-flex flex-column justify-content-center align-items-center">
@@ -607,7 +636,7 @@
                 <div class="arcade-game active" data-game="0">
                   <div id="pong-wrapper">
                     <div id="pong-settings">
-                      <p class="pong-settings-title">Choose Your Mode</p>
+                      <p class="pong-settings-title">Sora Pong</p>
                       <p class="pong-label">Mode</p>
                       <div class="pong-btn-group" id="mode-group">
                         <button class="pong-toggle active" data-val="ai" onclick="pongSetMode('ai',this)">vs AI</button>
@@ -638,13 +667,70 @@
                       <span class="pong-score-num" id="pong-score-p2">0</span>
                       <span class="pong-score-label" id="pong-p2-label">AI</span>
                       <button id="pong-pause-btn" onclick="pongTogglePause()" title="Pause (P)">||</button>
-                      <button id="pong-quit-btn" onclick="pongReset()" title="Quit">QUIT</button>
+                      <button id="pong-quit-btn" onclick="pongReset()" title="Quit (Q)">QUIT</button>
                     </div>
                     <canvas id="pong-canvas" width="460" height="300" style="display:none;"></canvas>
                     <div id="pong-controls-hint"></div>
                     <div id="pong-result">
                       <span id="pong-result-text"></span>
                       <button onclick="pongReset()">Play Again</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- GAME 1: Bricks -->
+                <div class="arcade-game" data-game="1">
+                  <div id="bricks-wrapper">
+                    <div id="bricks-settings">
+                      <p class="pong-settings-title">Sora Bricks</p>
+                      <p class="pong-label">Difficulty</p>
+                      <div class="pong-btn-group" id="bricks-difficulty-group">
+                        <button class="pong-toggle active" data-val="easy" onclick="bricksSetDifficulty('easy',this)">Easy</button>
+                        <button class="pong-toggle" data-val="medium" onclick="bricksSetDifficulty('medium',this)">Medium</button>
+                        <button class="pong-toggle" data-val="hard" onclick="bricksSetDifficulty('hard',this)">Hard</button>
+                      </div>
+                      <button id="bricks-start-btn" onclick="bricksStart()">Play Now</button>
+                    </div>
+                    <div id="bricks-scorebar">
+                      <span class="pong-score-label">Score</span>
+                      <span class="pong-score-num" id="bricks-score">0</span>
+                      <span class="pong-score-divider">—</span>
+                      <span class="pong-score-label">Lives</span>
+                      <span class="pong-score-num" id="bricks-lives">3</span>
+                      <button id="bricks-pause-btn" onclick="bricksTogglePause()" title="Pause (P)">PAUSE</button>
+                      <button id="bricks-quit-btn" onclick="bricksReset()" title="Quit">QUIT</button>
+                    </div>
+                    <canvas id="bricks-canvas" width="460" height="300" style="display:none;"></canvas>
+                    <div id="bricks-controls-hint"></div>
+                    <div id="bricks-result">
+                      <span id="bricks-result-text"></span>
+                      <button onclick="bricksReset()">Play Again</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- GAME 2: Snakes -->
+                <div class="arcade-game" data-game="2">
+                  <div id="snakes-wrapper">
+                    <div id="snakes-settings">
+                      <p class="pong-settings-title">Sora Snakes</p>
+                      <p class="pong-label">Difficulty</p>
+                      <div class="pong-btn-group" id="snakes-difficulty-group">
+                        <button class="pong-toggle active" data-val="easy"   onclick="snakesSetDifficulty('easy',this)">Easy</button>
+                        <button class="pong-toggle"        data-val="medium" onclick="snakesSetDifficulty('medium',this)">Medium</button>
+                        <button class="pong-toggle"        data-val="hard"   onclick="snakesSetDifficulty('hard',this)">Hard</button>
+                      </div>
+                      <button id="snakes-start-btn" onclick="snakesStart()">Play Now</button>
+                    </div>
+                    <div id="snakes-scorebar">
+                      <span class="pong-score-label">Score</span>
+                      <span class="pong-score-num" id="snakes-score">0</span>
+                      <button id="snakes-pause-btn" onclick="snakesTogglePause()" title="Pause (P)">PAUSE</button>
+                      <button id="snakes-quit-btn"  onclick="snakesReset()"       title="Quit">QUIT</button>
+                    </div>
+                    <canvas id="snakes-canvas" width="460" height="300" style="display:none;"></canvas>
+                    <div id="snakes-controls-hint"></div>
+                    <div id="snakes-result">
+                      <span id="snakes-result-text"></span>
+                      <button onclick="snakesReset()">Play Again</button>
                     </div>
                   </div>
                 </div>
@@ -661,6 +747,8 @@
             <!-- Dot indicators — below the carousel row -->
             <div class="arcade-dots" id="arcade-dots">
               <span class="arcade-dot active" data-index="0"></span>
+              <span class="arcade-dot" data-index="1"></span>
+              <span class="arcade-dot" data-index="2"></span>
             </div>
 
           </div>
@@ -676,16 +764,22 @@
       const titleEl = document.getElementById('arcade-game-title');
 
       // Add more titles here as you add games
-      const gameTitles = ['Sora Pong'];
+      const gameTitles = ['Sora Pong', 'Sora Bricks', 'Sora Snakes'];
       // Add more about-panel IDs here as you add games
-      const aboutPanels = ['arcade-about-pong'];
+      const aboutPanels = ['arcade-about-pong', 'arcade-about-bricks', 'arcade-about-snakes'];
 
       let current = 0;
 
       function show(index) {
-        // Quit pong if leaving it
+        // Quit if leaving it
         if (current === 0 && index !== 0 && typeof pongReset === 'function') {
           pongReset();
+        }
+        if (current === 1 && index !== 1 && typeof bricksReset === 'function') {
+          bricksReset();
+        }
+        if (current === 2 && index !== 2 && typeof snakesReset === 'function') {
+          snakesReset();
         }
 
         games.forEach((g, i) => g.classList.toggle('active', i === index));
@@ -706,6 +800,8 @@
     </script>
 
     <script src="static/js/pong.js"></script>
+    <script src="static/js/bricks.js"></script>
+    <script src="static/js/snakes.js"></script>
 
     <!-- About Detective Section -->
 <section id="about_detective" class="about quiz section">

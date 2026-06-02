@@ -2938,3 +2938,307 @@ body.screen-shake {
     text-align: center;
   }
 }
+
+/* Bricks wrapper */
+#bricks-wrapper {
+  position: relative;
+  width: 460px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--surface-color);
+  box-shadow:
+    0 0 0 2px #2a2a2a,
+    0 0 0 4px #1a1a1a,
+    0 16px 48px rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 4px;
+}
+
+#bricks-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  width: 100%;
+  background: var(--surface-color);
+  gap: 4px;
+}
+
+#bricks-start-btn {
+  margin-top: 22px;
+  font-family: 'Black Chancery', cursive;
+  font-size: 20px;
+  background: var(--accent-color);
+  color: #fff;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 10px 36px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(62,160,85,0.3);
+}
+
+#bricks-start-btn:hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 15%);
+  transform: translateY(-2px);
+}
+
+#bricks-scorebar {
+  display: none;
+  width: 100%;
+  background: #0d1117;
+  padding: 7px 16px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(62,160,85,0.25);
+}
+
+#bricks-canvas {
+  display: block;
+  width: 460px;
+  height: 300px;
+  background: #0d1117;
+}
+
+#bricks-result {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(13,17,23,0.92);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 10;
+  border-radius: 20px;
+}
+
+#bricks-result-text {
+  font-family: 'Dancing Script', cursive;
+  font-size: 48px;
+  color: #3EA055;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(62,160,85,0.5);
+}
+
+#bricks-result button {
+  font-family: 'Dancing Script', cursive;
+  font-size: 18px;
+  background: var(--accent-color);
+  color: #fff;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 9px 28px;
+  cursor: pointer;
+  margin: 0;
+}
+
+#bricks-controls-hint {
+  display: none;
+  width: 100%;
+  background: #0d1117;
+  padding: 7px 16px;
+  border-top: 1px solid rgba(62,160,85,0.2);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+}
+
+#bricks-quit-btn {
+  font-size: 13px;
+  background: none;
+  border: 1px solid rgba(220,53,69,0.4);
+  border-radius: 6px;
+  color: rgba(220,53,69,0.7);
+  padding: 2px 9px;
+  cursor: pointer;
+  margin: 0;
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+#bricks-quit-btn:hover {
+  background: rgba(220,53,69,0.12);
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+#bricks-pause-btn {
+  font-size: 15px;
+  background: none;
+  border: 1px solid rgba(62,160,85,0.4);
+  border-radius: 6px;
+  color: rgba(62,160,85,0.8);
+  padding: 2px 9px;
+  cursor: pointer;
+  margin: 0;
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+#bricks-pause-btn:hover {
+  background: rgba(62,160,85,0.12);
+  border-color: #3EA055;
+  color: #3EA055;
+}
+
+@media (max-width: 991px) {
+  #bricks-wrapper { width: 100%; max-width: 460px; }
+  #bricks-canvas  { width: 100%; height: 240px; }
+}
+
+/*--------------------------------------------------------------
+# Snakes Game Section
+--------------------------------------------------------------*/
+#snakes-wrapper {
+  position: relative;
+  width: 460px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--surface-color);
+  box-shadow:
+    0 0 0 2px #2a2a2a,
+    0 0 0 4px #1a1a1a,
+    0 16px 48px rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 4px;
+}
+
+#snakes-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  width: 100%;
+  background: var(--surface-color);
+  gap: 4px;
+}
+
+#snakes-start-btn {
+  margin-top: 22px;
+  font-family: 'Black Chancery', cursive;
+  font-size: 20px;
+  background: var(--accent-color);
+  color: #fff;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 10px 36px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(62,160,85,0.3);
+}
+
+#snakes-start-btn:hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 15%);
+  transform: translateY(-2px);
+}
+
+#snakes-scorebar {
+  display: none;
+  width: 100%;
+  background: #0d1117;
+  padding: 7px 16px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(62,160,85,0.25);
+}
+
+#snakes-canvas {
+  display: block;
+  width: 460px;
+  height: 300px;
+  background: #0d1117;
+}
+
+#snakes-result {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(13,17,23,0.92);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 10;
+  border-radius: 20px;
+}
+
+#snakes-result-text {
+  font-family: 'Dancing Script', cursive;
+  font-size: 48px;
+  color: #dc3545;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(220,53,69,0.5);
+}
+
+#snakes-result button {
+  font-family: 'Dancing Script', cursive;
+  font-size: 18px;
+  background: var(--accent-color);
+  color: #fff;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 9px 28px;
+  cursor: pointer;
+  margin: 0;
+}
+
+#snakes-controls-hint {
+  display: none;
+  width: 100%;
+  background: #0d1117;
+  padding: 7px 16px;
+  border-top: 1px solid rgba(62,160,85,0.2);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+}
+
+#snakes-pause-btn {
+  font-size: 15px;
+  background: none;
+  border: 1px solid rgba(62,160,85,0.4);
+  border-radius: 6px;
+  color: rgba(62,160,85,0.8);
+  padding: 2px 9px;
+  cursor: pointer;
+  margin: 0;
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+#snakes-pause-btn:hover {
+  background: rgba(62,160,85,0.12);
+  border-color: #3EA055;
+  color: #3EA055;
+}
+
+#snakes-quit-btn {
+  font-size: 13px;
+  background: none;
+  border: 1px solid rgba(220,53,69,0.4);
+  border-radius: 6px;
+  color: rgba(220,53,69,0.7);
+  padding: 2px 9px;
+  cursor: pointer;
+  margin: 0;
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+#snakes-quit-btn:hover {
+  background: rgba(220,53,69,0.12);
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+@media (max-width: 991px) {
+  #snakes-wrapper { width: 100%; max-width: 460px; }
+  #snakes-canvas  { width: 100%; height: 240px; }
+}
