@@ -12,8 +12,7 @@ services:
     ports:
       - "5050:5000"
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     networks:
       - sora_network
  
@@ -30,11 +29,6 @@ services:
       - ./sora_backup.sql:/docker-entrypoint-initdb.d/sora_backup.sql  # Include your SQL file
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - sora_network
 
@@ -50,63 +44,9 @@ services:
     networks:
       - sora_network
 
-  # Loki log storage
-  loki:
-    image: grafana/loki:3.7.0
-    container_name: sora_loki
-    command: -config.file=/etc/loki/loki-config.yml
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
-      - loki_data:/loki
-    networks:
-      - sora_network
-
-  # Grafana Alloy collects Docker logs and forwards them to Loki
-  alloy:
-    image: grafana/alloy:v1.16.0
-    container_name: sora_alloy
-    command:
-      - run
-      - --server.http.listen-addr=0.0.0.0:12345
-      - --storage.path=/var/lib/alloy/data
-      - /etc/alloy/config.alloy
-    ports:
-      - "12345:12345"
-    volumes:
-      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
-      - alloy_data:/var/lib/alloy
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - loki
-    networks:
-      - sora_network
-
-  # Grafana UI
-  grafana:
-    image: grafana/grafana-oss:latest
-    container_name: sora_grafana
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
-      GF_USERS_ALLOW_SIGN_UP: "false"
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-    depends_on:
-      - loki
-    networks:
-      - sora_network
-
 networks:
   sora_network:
     driver: bridge  # Use bridge networking for container communication
 
 volumes:
   sora_db_data:
-  loki_data:
-  grafana_data:
-  alloy_data:

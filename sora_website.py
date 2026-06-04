@@ -11,12 +11,13 @@ import os
 from urllib.parse import urlparse
 from prometheus_flask_exporter import PrometheusMetrics
 from flask import request, Response
-# from prometheus_client import generate_latest
+from prometheus_client import generate_latest
+
 
 # from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__, static_folder='Front_end', static_url_path='')
-# app.secret_key = 'your_secret_key'  # Secret key for sessions
+app.secret_key = 'your_secret_key'  # Secret key for sessions
 
 
 
@@ -32,16 +33,16 @@ CORS(app, supports_credentials=True)  # Enable CORS with credentials support
 app.config['SESSION_PERMANENT'] = False  # Sessions are not permanent
 Session(app)  # Initialize Flask-Session
 
-# metrics = PrometheusMetrics(app, default_labels={'app': 'sora'})
+metrics = PrometheusMetrics(app, default_labels={'app': 'sora'})
 
 # Create your own protected /metrics route
-# @app.route('/metrics')
-# def metrics_endpoint():
-#     auth = request.authorization
-#     if not auth or auth.username != os.environ.get('METRICS_USER') or \
-#        auth.password != os.environ.get('METRICS_PASS'):
-#         return Response('Unauthorized', 401, {'WWW-Authenticate': 'Basic realm="metrics"'})
-#     return Response(generate_latest(), mimetype='text/plain; version=0.0.4')
+@app.route('/metrics')
+def metrics_endpoint():
+    auth = request.authorization
+    if not auth or auth.username != os.environ.get('METRICS_USER') or \
+       auth.password != os.environ.get('METRICS_PASS'):
+        return Response('Unauthorized', 401, {'WWW-Authenticate': 'Basic realm="metrics"'})
+    return Response(generate_latest(), mimetype='text/plain; version=0.0.4')
  
 # Database connection function
 def get_db_connection():
