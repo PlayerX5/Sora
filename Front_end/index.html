@@ -303,7 +303,7 @@
           <div class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center" data-aos="fade-left" data-aos-delay="200">
             <div class="insta-frame">
               <!-- Replace the src below with your best Instagram photo -->
-              <img src="static/img/aboutquiz.png" alt="dreaming._.green — featured photo">
+              <img src="static/img/instamain.jpg" alt="dreaming._.green — featured photo">
               <div class="insta-handle">
                 <i class="bi bi-instagram"></i>
                 <span>@dreaming._.green</span>
@@ -324,19 +324,19 @@
             e.g. src="static/img/instagram/photo1.jpg"
             The set is duplicated below for a seamless infinite loop — update both copies.
           -->
-          <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
-          <div class="reel-item"><img src="static/img/about.png" alt=""></div>
-          <div class="reel-item"><img src="static/img/features-bg.jpg" alt=""></div>
-          <div class="reel-item"><img src="static/img/aboutquiz.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta1.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta2.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta3.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta4.jpg" alt=""></div>
           <div class="reel-item"><img src="static/img/weather.jpg" alt=""></div>
           <div class="reel-item"><img src="static/img/aboutdetective.png" alt=""></div>
           <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
           <div class="reel-item"><img src="static/img/about.png" alt=""></div>
           <!-- Duplicate set for seamless loop -->
-          <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
-          <div class="reel-item"><img src="static/img/about.png" alt=""></div>
-          <div class="reel-item"><img src="static/img/features-bg.jpg" alt=""></div>
-          <div class="reel-item"><img src="static/img/aboutquiz.png" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta1.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta2.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta3.jpg" alt=""></div>
+          <div class="reel-item"><img src="static/img/insta4.jpg" alt=""></div>
           <div class="reel-item"><img src="static/img/weather.jpg" alt=""></div>
           <div class="reel-item"><img src="static/img/aboutdetective.png" alt=""></div>
           <div class="reel-item"><img src="static/img/hero-bg.jpg" alt=""></div>
@@ -1097,14 +1097,16 @@
 
   <!-- Eye Element -->
   <div id="eye-container">
-    <div id="close-eye-btn">✕</div>
-    <div id="eyeball">
-      <div id="pupil"></div>
-      <div id="eyelid"></div>
-    </div>
     <div id="dialogue-bubble">
       <span id="dialogue-text"></span>
       <span id="typing-dots"><span></span><span></span><span></span></span>
+    </div>
+    <div style="position:relative; display:inline-block;">
+      <div id="close-eye-btn">✕</div>
+      <div id="eyeball">
+        <div id="pupil"></div>
+        <div id="eyelid"></div>
+      </div>
     </div>
   </div>
 
@@ -1271,6 +1273,31 @@
       const pupilSize = Math.round(16 * scale);
       pupil.style.width = pupilSize + 'px';
       pupil.style.height = pupilSize + 'px';
+
+      // Clamp container so it never goes off-screen after growing
+      // Use a small rAF delay so the browser has applied the new size
+      requestAnimationFrame(() => {
+        const rect = container.getBoundingClientRect();
+        let left = parseFloat(container.style.left) || rect.left;
+        let top  = parseFloat(container.style.top)  || rect.top;
+        const maxLeft = window.innerWidth  - container.offsetWidth;
+        const maxTop  = window.innerHeight - container.offsetHeight;
+        left = Math.max(0, Math.min(left, maxLeft));
+        top  = Math.max(0, Math.min(top,  maxTop));
+        // Only apply corrected position if the container is already using top/left
+        // (i.e. after first drag, or force it into top/left mode now)
+        if (!container.style.top) {
+          // Still in default bottom/left — keep using CSS bottom; no correction needed
+          // but we need to prevent it from going off the bottom of the screen.
+          // Convert to top/left so we can clamp:
+          container.style.bottom = 'auto';
+          container.style.left = Math.max(0, Math.min(rect.left, maxLeft)) + 'px';
+          container.style.top  = Math.max(0, Math.min(rect.top,  maxTop))  + 'px';
+        } else {
+          container.style.left = left + 'px';
+          container.style.top  = top  + 'px';
+        }
+      });
     }
 
     // ── Thunder effect ─────────────────────────────────────────────
@@ -1525,9 +1552,10 @@
 
     function initEyeDragPos() {
       const rect = container.getBoundingClientRect();
+      const eyeRect = eye.getBoundingClientRect();
       container.style.bottom = 'auto';
-      container.style.left   = rect.left + 'px';
-      container.style.top    = rect.top  + 'px';
+      container.style.left = eyeRect.left + 'px';
+      container.style.top  = eyeRect.top  + 'px';
     }
 
     container.addEventListener('mousedown', (e) => {
@@ -1547,8 +1575,8 @@
       if (!dragActive) return;
       const dx = e.clientX - dragStartX;
       const dy = e.clientY - dragStartY;
-      const newLeft = Math.max(0, Math.min(window.innerWidth  - container.offsetWidth,  dragOrigLeft + dx));
-      const newTop  = Math.max(0, Math.min(window.innerHeight - container.offsetHeight, dragOrigTop  + dy));
+      const newLeft = Math.max(0, Math.min(window.innerWidth  - eye.offsetWidth,  dragOrigLeft + dx));
+      const newTop  = Math.max(0, Math.min(window.innerHeight - eye.offsetHeight, dragOrigTop  + dy));
       container.style.left = newLeft + 'px';
       container.style.top  = newTop  + 'px';
     });
@@ -1577,8 +1605,8 @@
       const t = e.touches[0];
       const dx = t.clientX - dragStartX;
       const dy = t.clientY - dragStartY;
-      const newLeft = Math.max(0, Math.min(window.innerWidth  - container.offsetWidth,  dragOrigLeft + dx));
-      const newTop  = Math.max(0, Math.min(window.innerHeight - container.offsetHeight, dragOrigTop  + dy));
+      const newLeft = Math.max(0, Math.min(window.innerWidth  - eye.offsetWidth,  dragOrigLeft + dx));
+      const newTop  = Math.max(0, Math.min(window.innerHeight - eye.offsetHeight, dragOrigTop  + dy));
       container.style.left = newLeft + 'px';
       container.style.top  = newTop  + 'px';
     }, { passive: true });
@@ -1612,7 +1640,7 @@
       <span id="music-icon" data-icon="♪"></span>
     </button>
     <div id="music-controls">
-      <span id="music-label">Best Friend, Krynoze</span>
+      <span id="music-label">Background Music</span>
       <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.25">
     </div>
     <audio id="bg-music" loop preload="auto">

@@ -2248,6 +2248,11 @@ label[for="numQuestions"] {
   left: 30px;
   z-index: 999;
   cursor: grab;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  overflow: visible;
 }
 
 @keyframes eye-shake {
@@ -2339,15 +2344,15 @@ label[for="numQuestions"] {
     8px -2px 0 1px #222;
 }
 
-/* Dialogue bubble */
+/* Dialogue bubble — lives inside #eye-container, so it drags with the eye */
 #dialogue-bubble {
-  position: fixed;
-  bottom: 90px; /* sits above the eye container (30px bottom + ~42px eye + 18px gap) */
-  left: 16px;   /* flush with viewport left edge, never overflows */
+  position: absolute;
+  bottom: calc(100% + 10px); /* sits just above the eyeball */
+  left: 0;
   transform: translateY(6px) scale(0.92);
   transform-origin: bottom left;
   min-width: 100px;
-  max-width: min(165px, calc(100vw - 32px)); /* never wider than viewport */
+  max-width: 165px;
   background: #fff;
   border-radius: 10px;
   padding: 7px 10px;
