@@ -1810,6 +1810,72 @@
   })();
   </script>
 
+  <div id="buddy-container">
+  
+    <!-- Floating trigger button -->
+    <div id="buddy-trigger" title="Talk to Buddy">
+      <span id="buddy-trigger-icon">🌙</span>
+      <div id="buddy-unread-dot"></div>
+    </div>
+  
+    <!-- Chat window -->
+    <div id="buddy-window">
+  
+      <!-- Header -->
+      <div id="buddy-header">
+        <div id="buddy-header-left">
+          <div id="buddy-avatar">🌙</div>
+          <div>
+            <div id="buddy-name">Buddy</div>
+            <div id="buddy-status">
+              <span id="buddy-status-dot"></span>
+              <span id="buddy-status-text">here for you</span>
+            </div>
+          </div>
+        </div>
+        <button id="buddy-close-btn" title="Close">✕</button>
+      </div>
+  
+      <!-- Disclaimer banner -->
+      <div id="buddy-disclaimer">
+        <span id="buddy-disclaimer-icon">✦</span>
+        <span>I forget when you leave — but right now, I'm all yours.</span>
+      </div>
+  
+      <!-- Messages area -->
+      <div id="buddy-messages"></div>
+  
+      <!-- Typing indicator -->
+      <div id="buddy-typing" style="display:none;">
+        <div id="buddy-typing-bubble">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+  
+      <!-- Input area -->
+      <div id="buddy-input-area">
+        <textarea
+          id="buddy-input"
+          placeholder="say anything…"
+          rows="1"
+          maxlength="1000"
+        ></textarea>
+        <button id="buddy-send-btn" title="Send">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+  
+    </div>
+  </div>
+  
+  <!-- Load Buddy's logic (place alongside your other static/js script tags,
+      e.g. right after <script src="static/js/snakes.js"></script>
+      or near the bottom with main.js / no.js / yes.js) -->
+  <script src="static/js/buddy.js"></script>
+
   <!-- Vendor JS Files -->
   <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="static/vendor/php-email-form/validate.js"></script>

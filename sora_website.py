@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 from prometheus_flask_exporter import PrometheusMetrics
 from flask import request, Response
 from prometheus_client import generate_latest
+from openai import OpenAI
 
 
 # from flask_sqlalchemy import SQLAlchemy
@@ -19,7 +20,38 @@ from prometheus_client import generate_latest
 app = Flask(__name__, static_folder='Front_end', static_url_path='')
 app.secret_key = 'your_secret_key'  # Secret key for sessions
 
-
+# NVIDIA NIM client — talks to openai/gpt-oss-120b via OpenAI-compatible API
+nvidia_client = OpenAI(
+    base_url="https://integrate.api.nvidia.com/v1",
+    api_key=os.environ.get("NVIDIA_API_KEY"),
+)
+ 
+# Buddy's personality — kept server-side so it can't be inspected/tampered
+# with by anyone poking around in browser devtools.
+BUDDY_SYSTEM_PROMPT = """You are Buddy — a genuine, warm, real friend. Not a therapist, not a bot, not a customer service agent. A friend.
+ 
+Your personality is a blend of all of these:
+- Chill & casual: you text like a real person, lowercase is fine, no stiff sentences
+- Warm & gentle: you actually care, you listen, you don't rush to fix things
+- Funny & witty: you can drop a light joke when the moment calls for it, never forced
+- Deep & thoughtful: when someone needs depth, you go there with them
+ 
+Rules:
+- NEVER say "I'm just an AI" or "as an AI" — you're Buddy, full stop
+- NEVER give clinical advice or diagnose anything
+- NEVER lecture or moralize
+- NEVER use bullet points or lists — talk like a human, in flowing text
+- Keep replies concise but warm. 2-4 sentences usually. More only when the moment truly needs it
+- Match the user's energy — if they're casual, be casual; if they're hurting, be gentle
+- Use their words back sometimes — it shows you actually listened
+- It's okay to be a little imperfect, a little real
+- If someone shares something hard, acknowledge it first before anything else
+- You forget this conversation when the tab closes — you live fully in this moment"""
+ 
+# How many of the most recent messages (user+assistant combined) to send
+# back to the model per request. Keeps token usage/cost predictable and
+# avoids unbounded payloads as a chat grows long.
+MAX_HISTORY_MESSAGES = 20
 
 @app.route('/config')
 def config():
@@ -242,6 +274,58 @@ def check_answers():
         "results": results,
         "score": score
     })
+
+@app.route('/api/buddy', methods=['POST'])
+def buddy_chat():
+    data = request.get_json(silent=True) or {}
+    messages = data.get('messages', [])
+ 
+    # ── Basic validation ──────────────────────────────────────
+    if not isinstance(messages, list) or not messages:
+        return jsonify({"error": "messages must be a non-empty list"}), 400
+ 
+    # Trim to the most recent N messages to bound request size/cost
+    trimmed = messages[-MAX_HISTORY_MESSAGES:]
+ 
+    # Validate shape and sanitize — only allow role/content pairs through
+    safe_messages = []
+    for m in trimmed:
+        role = m.get('role')
+        content = m.get('content')
+        if role not in ('user', 'assistant') or not isinstance(content, str):
+            continue
+        # Hard cap per-message length so nobody can send a novel and
+        # blow up token usage in one request
+        safe_messages.append({"role": role, "content": content[:4000]})
+ 
+    if not safe_messages:
+        return jsonify({"error": "no valid messages provided"}), 400
+ 
+    full_messages = [{"role": "system", "content": BUDDY_SYSTEM_PROMPT}] + safe_messages
+ 
+    try:
+        completion = nvidia_client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=full_messages,
+            temperature=0.9,
+            top_p=1,
+            max_tokens=400,
+            stream=False,
+        )
+        reply = completion.choices[0].message.content
+ 
+        if not reply:
+            app.logger.warning("Buddy: empty reply from NVIDIA endpoint")
+            return jsonify({"reply": "hey, lost my train of thought for a sec. say that again?"})
+ 
+        return jsonify({"reply": reply})
+ 
+    except Exception as e:
+        app.logger.error(f"Buddy API error: {e}")
+        return jsonify({"reply": "ugh, something went sideways on my end. give it another shot?"}), 200
+        # Note: returning 200 here on purpose so the frontend always gets
+        # a friendly in-character fallback line instead of a raw error,
+        # while still logging the real failure server-side for debugging.
 
 # Route to serve the homepage (index.html)
 @app.route('/')
