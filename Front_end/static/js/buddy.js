@@ -8,11 +8,9 @@
   // ── Greeting lines (randomised on open) ──────────────────────
   const GREETINGS = [
     "hey 👋 I'm Buddy. whatever's on your mind — I'm here.",
-    "oh hey, you opened this. that already takes something. what's up?",
     "hey you. rough day, good day, weird day? tell me.",
     "hi 🌙 no judgement here. just us. what's going on?",
-    "hey — I'm glad you're here. seriously. talk to me.",
-  ];
+    "hey hey. I'm all ears. what's on your mind?",];
 
   // ── State ─────────────────────────────────────────────────────
   const history = [];
@@ -29,6 +27,65 @@
   const sendBtn    = document.getElementById('buddy-send-btn');
   const typingEl   = document.getElementById('buddy-typing');
   const unreadDot  = document.getElementById('buddy-unread-dot');
+  const emojiBtn   = document.getElementById('buddy-emoji-btn');
+  const emojiPanel = document.getElementById('buddy-emoji-panel');
+ 
+  // ── Emoji picker ──────────────────────────────────────────────
+  const EMOJIS = [
+    '😊','😂','😅','🥲','😭','😢','😔','😞','😟',
+    '😕','🙁','😣','😖','😩','😫','🥺','😤','😠',
+    '😡','🤬','😈','👿','😱','😨','😰','😓','😶',
+    '🤔','🤷','🙄','😏','😒','🙂','😀','😃','😄',
+    '😁','🥰','😍','🤩','😘','😗','😚','😙','🤗',
+    '🤭','😐','😑','😬','🫠','😯','😦','😧','😮',
+    '😲','🥱','😴','🤤','😪','😵','🤯','🥳','😎',
+    '🤓','🧐','😷','🤒','🤕','🤑','🤠','🫡','🫢',
+    '👋','🤝','🫶','❤️','🧡','💛','💚','💙','💜',
+    '🖤','🤍','💔','❣️','💕','💞','💓','💗','💖',
+    '💘','💝','✨','🌟','⭐','🔥','💫','🎉','🎊',
+    '👍','👎','👏','🙌','🫂','💪','🤞','✌️','🤟',
+  ];
+ 
+  // Populate panel
+  EMOJIS.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.className = 'buddy-emoji';
+    btn.textContent = emoji;
+    btn.addEventListener('click', () => {
+      // Insert at cursor position
+      const start = inputEl.selectionStart;
+      const end   = inputEl.selectionEnd;
+      const val   = inputEl.value;
+      inputEl.value = val.slice(0, start) + emoji + val.slice(end);
+      // Move cursor after inserted emoji
+      const newPos = start + emoji.length;
+      inputEl.setSelectionRange(newPos, newPos);
+      inputEl.focus();
+      // Trigger auto-resize
+      inputEl.dispatchEvent(new Event('input'));
+    });
+    emojiPanel.appendChild(btn);
+  });
+ 
+  // Toggle panel
+  emojiBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    emojiPanel.classList.toggle('open');
+    if (emojiPanel.classList.contains('open')) {
+      emojiBtn.style.filter = 'brightness(1.3)';
+    } else {
+      emojiBtn.style.filter = '';
+      inputEl.focus();
+    }
+  });
+ 
+  // Close panel when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
+      emojiPanel.classList.remove('open');
+      emojiBtn.style.filter = '';
+    }
+  });
 
   // ── Open / Close ──────────────────────────────────────────────
   function openChat() {

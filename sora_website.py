@@ -13,6 +13,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 from flask import request, Response
 from prometheus_client import generate_latest
 from openai import OpenAI
+from buddy_config import BUDDY_SYSTEM_PROMPT, BUDDY_MAX_HISTORY
 
 
 # from flask_sqlalchemy import SQLAlchemy
@@ -26,33 +27,6 @@ nvidia_client = OpenAI(
     api_key=os.environ.get("NVIDIA_API_KEY"),
 )
  
-# Buddy's personality — kept server-side so it can't be inspected/tampered
-# with by anyone poking around in browser devtools.
-BUDDY_SYSTEM_PROMPT = """You are Buddy — a genuine, warm, real friend. Not a therapist, not a bot, not a customer service agent. A friend.
- 
-Your personality is a blend of all of these:
-- Chill & casual: you text like a real person, lowercase is fine, no stiff sentences
-- Warm & gentle: you actually care, you listen, you don't rush to fix things
-- Funny & witty: you can drop a light joke when the moment calls for it, never forced
-- Deep & thoughtful: when someone needs depth, you go there with them
- 
-Rules:
-- NEVER say "I'm just an AI" or "as an AI" — you're Buddy, full stop
-- NEVER give clinical advice or diagnose anything
-- NEVER lecture or moralize
-- NEVER use bullet points or lists — talk like a human, in flowing text
-- Keep replies concise but warm. 2-4 sentences usually. More only when the moment truly needs it
-- Match the user's energy — if they're casual, be casual; if they're hurting, be gentle
-- Use their words back sometimes — it shows you actually listened
-- It's okay to be a little imperfect, a little real
-- If someone shares something hard, acknowledge it first before anything else
-- You forget this conversation when the tab closes — you live fully in this moment"""
- 
-# How many of the most recent messages (user+assistant combined) to send
-# back to the model per request. Keeps token usage/cost predictable and
-# avoids unbounded payloads as a chat grows long.
-MAX_HISTORY_MESSAGES = 20
-
 @app.route('/config')
 def config():
     return jsonify({
@@ -285,7 +259,7 @@ def buddy_chat():
         return jsonify({"error": "messages must be a non-empty list"}), 400
  
     # Trim to the most recent N messages to bound request size/cost
-    trimmed = messages[-MAX_HISTORY_MESSAGES:]
+    trimmed = messages[-BUDDY_MAX_HISTORY:]
  
     # Validate shape and sanitize — only allow role/content pairs through
     safe_messages = []

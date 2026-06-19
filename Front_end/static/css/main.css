@@ -3609,6 +3609,78 @@ body.screen-shake {
   transform: none;
 }
 
+/* ── Emoji button ──────────────────────────── */
+#buddy-emoji-btn {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+  line-height: 1;
+}
+
+#buddy-emoji-btn:hover {
+  transform: scale(1.15);
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Emoji picker panel ────────────────────── */
+#buddy-emoji-panel {
+  display: none;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 10px;
+  background: var(--bud-surface);
+  border-top: 1px solid var(--bud-border);
+  max-height: 150px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+#buddy-emoji-panel.open {
+  display: flex;
+}
+
+#buddy-emoji-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+#buddy-emoji-panel::-webkit-scrollbar-thumb {
+  background: rgba(175,105,237,0.3);
+  border-radius: 2px;
+}
+
+.buddy-emoji {
+  font-size: 20px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  transition: background 0.15s ease, transform 0.15s ease;
+  line-height: 1;
+}
+
+.buddy-emoji:hover {
+  background: rgba(175,105,237,0.15);
+  transform: scale(1.2);
+}
+
 @media (max-width: 480px) {
   #buddy-window {
     right: 10px;
