@@ -305,6 +305,10 @@ def buddy_chat():
         # a friendly in-character fallback line instead of a raw error,
         # while still logging the real failure server-side for debugging.
 
+@app.route('/health')
+def health():
+    return jsonify({"status": "ok"}), 200
+
 # Route to serve the homepage (index.html)
 @app.route('/')
 def home():
