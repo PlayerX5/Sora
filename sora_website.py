@@ -104,9 +104,9 @@ def get_questions(difficulty):
     conn.close()
     return formatted_questions
 
-@app.before_request
-def debug_session():
-    print("Session data before request:", dict(session))  # Log session data before handling the request
+# @app.before_request
+# def debug_session():
+#     print("Session data before request:", dict(session))  # Log session data before handling the request
 
 # Endpoint to retrieve a random sora question
 @app.route('/api/sora', methods=['GET'])
