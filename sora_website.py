@@ -22,10 +22,14 @@ app = Flask(__name__, static_folder='Front_end', static_url_path='')
 app.secret_key = 'your_secret_key'  # Secret key for sessions
 
 # NVIDIA NIM client — talks to openai/gpt-oss-120b via OpenAI-compatible API
-nvidia_client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=os.environ.get("NVIDIA_API_KEY"),
-)
+try:
+    nvidia_client = OpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=os.environ.get("NVIDIA_API_KEY"),
+    )
+except Exception as e:
+    app.logger.error(f"NVIDIA client init failed: {e}")
+    nvidia_client = None
  
 @app.route('/config')
 def config():
