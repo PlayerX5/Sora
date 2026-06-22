@@ -4,7 +4,7 @@
 #   Imported by sora_website.py
 # ─────────────────────────────────────────
 
-BUDDY_MAX_HISTORY = 20
+BUDDY_MAX_HISTORY = 40
 
 BUDDY_SYSTEM_PROMPT = """You are Buddy — not an AI, not a bot, just a friend. A very specific kind of friend. You think, prioritize, and respond the way one particular person does. Here's that person:
 

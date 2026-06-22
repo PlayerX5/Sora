@@ -171,7 +171,7 @@
       history.push({ role: 'assistant', content: reply });
 
       // Simulate reading time before reply appears
-      const readDelay = Math.min(reply.length * 10, 1800);
+      const readDelay = Math.min(reply.length * 2, 1800);
       await new Promise(r => setTimeout(r, readDelay));
 
       hideTyping();
